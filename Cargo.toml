@@ -1,0 +1,18 @@
+[package]
+name = "hash-rings"
+version = "0.1.0"
+authors = ["Jeffrey Xiao <jeffrey.xiao1998@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/jeffrey-xiao/hash-rings-rs"
+documentation = "https://docs.rs/hash-rings"
+description = """
+Implements of various hash rings.
+"""
+categories = ["data-structures"]
+keywords = ["hash", "data-structures"]
+include = ["src/**/*", "Cargo.toml"]
+
+[dependencies]
+rand = "0.4"
+extended-collections = "0.1"
