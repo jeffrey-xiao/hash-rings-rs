@@ -5,7 +5,55 @@
 [![Build Status](https://travis-ci.org/jeffrey-xiao/hash-rings-rs.svg?branch=master)](https://travis-ci.org/jeffrey-xiao/hash-rings-rs)
 [![codecov](https://codecov.io/gh/jeffrey-xiao/hash-rings-rs/branch/master/graph/badge.svg)](https://codecov.io/gh/jeffrey-xiao/hash-rings-rs)
 
-# References
+`hash-rings` contains implementations for four different hash ring algorithms: Cache Array Routing Protocol, Consistent Hashing, Rendezvous Hashing, and Weighted Rendezvous Hashing. It also provides clients for Consistent Hashing, Rendezvous Hashing, and Weighted Rendezvous Hashing to efficiently redistribute items as nodes are inserted and removed from the ring.
+
+## Examples
+### Example Ring Usage
+```rust
+extern crate hash_rings;
+
+use hash_rings::consistent::Ring;
+
+fn main() {
+    let mut r = Ring::new();
+
+    r.insert_node(&"node-1", 1);
+    r.insert_node(&"node-2", 3);
+
+    assert_eq!(r.get_node(&"point-1"), &"node-1");
+}
+```
+
+### Example Client Usage
+```rust
+extern crate hash_rings;
+
+use hash_rings::consistent::Client;
+
+fn main() {
+    let mut c = Client::new();
+    c.insert_node(&"node-1", 1);
+    c.insert_node(&"node-2", 3);
+
+    c.insert_point(&"point-1");
+
+    assert_eq!(c.get_node(&"point-1"), &"node-1");
+    assert_eq!(c.get_points(&"node-1"), [&"point-1"]);
+}
+```
+
+## Usage
+Add this to your `Cargo.toml`:
+```toml
+[dependencies]
+hash-rings = "*"
+```
+and this to your crate root:
+```rust
+extern crate hash_rings;
+```
+
+## References
  - [Cache Array Routing Protocol](https://tools.ietf.org/html/draft-vinod-carp-v1-03)
  - [New Hashing Algorithms for Data Storage](http://www.snia.org/sites/default/files/SDC15_presentations/dist_sys/Jason_Resch_New_Consistent_Hashings_Rev.pdf)
  - [Consistent hashing and random trees: distributed caching protocols for relieving hot spots on the World Wide Web](https://dl.acm.org/citation.cfm?id=258660)
