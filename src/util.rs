@@ -2,8 +2,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
 pub fn gen_hash<T>(value: &T) -> u64
-where T: Hash
-{
+where T: Hash {
     let mut hasher = DefaultHasher::new();
     value.hash(&mut hasher);
     hasher.finish()

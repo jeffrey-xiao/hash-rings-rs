@@ -174,8 +174,7 @@ where T: 'a + Hash + Ord
     /// assert_eq!(ring.get_node(&"point-1"), &"node-1");
     /// ```
     pub fn get_node<U>(&self, point: &U) -> &'a T
-    where U: Hash + Eq
-    {
+    where U: Hash + Eq {
         let point_hash = util::gen_hash(point);
         self.nodes
             .iter()

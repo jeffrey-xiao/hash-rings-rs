@@ -53,8 +53,7 @@ impl Ring {
     /// assert_eq!(ring.get_node(&"foo"), 8);
     /// ```
     pub fn get_node<T>(&self, key: &T) -> u32
-    where T: Hash
-    {
+    where T: Hash {
         let mut h = util::gen_hash(key);
         let mut i: i64 = -1;
         let mut j: i64 = 0;

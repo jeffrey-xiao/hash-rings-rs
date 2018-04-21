@@ -1,9 +1,9 @@
+use extended_collections::treap::TreapMap;
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::iter::Iterator;
 use std::mem;
 use std::vec::Vec;
-use extended_collections::treap::TreapMap;
 use util;
 
 /// A hashing ring implemented using consistent hashing.
@@ -138,8 +138,7 @@ where T: 'a + Hash + Eq
     /// assert_eq!(ring.get_node(&"point-1"), &"node-1");
     /// ```
     pub fn get_node<U>(&mut self, point: &U) -> &T
-    where U: Hash + Eq
-    {
+    where U: Hash + Eq {
         let hash = util::gen_hash(point);
         if let Some(node) = self.get_next_node(&hash) {
             &*node
@@ -584,8 +583,7 @@ mod tests {
     pub struct Key(pub u32);
     impl Hash for Key {
         fn hash<H>(&self, state: &mut H)
-        where H: Hasher
-        {
+        where H: Hasher {
             state.write_u32(self.0 / 2);
         }
     }

@@ -28,13 +28,13 @@ use util;
 /// assert_eq!(iterator.next(), None);
 /// ```
 pub struct Ring<'a, T>
-where T : 'a + Hash + Ord
+where T: 'a + Hash + Ord
 {
     nodes: HashMap<&'a T, f32>,
 }
 
 impl<'a, T> Ring<'a, T>
-where T : 'a + Hash + Ord
+where T: 'a + Hash + Ord
 {
     /// Constructs a new, empty `Ring<T>`
     ///
@@ -101,8 +101,7 @@ where T : 'a + Hash + Ord
     /// assert_eq!(ring.get_node(&"point-1"), &"node-1");
     /// ```
     pub fn get_node<U>(&self, key: &U) -> &'a T
-    where U: Hash + Eq
-    {
+    where U: Hash + Eq {
         let point_hash = util::gen_hash(key);
         self.nodes
             .iter()

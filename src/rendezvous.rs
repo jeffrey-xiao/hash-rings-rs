@@ -105,14 +105,18 @@ where T: 'a + Hash + Ord
     /// assert_eq!(ring.get_node(&"point-1"), &"node-1");
     /// ```
     pub fn get_node<U>(&self, id: &U) -> &'a T
-    where U: Hash + Eq
-    {
+    where U: Hash + Eq {
         let point_hash = util::gen_hash(id);
         self.nodes
             .iter()
             .map(|entry| {
                 (
-                    entry.1.iter().map(|hash| util::combine_hash(*hash, point_hash)).max().unwrap(),
+                    entry
+                        .1
+                        .iter()
+                        .map(|hash| util::combine_hash(*hash, point_hash))
+                        .max()
+                        .unwrap(),
                     entry.0,
                 )
             })

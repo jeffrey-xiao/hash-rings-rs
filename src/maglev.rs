@@ -74,15 +74,17 @@ where T: 'a + Hash
     }
 
     fn get_hash<U>(hasher: SipHasher, key: &U) -> usize
-    where U: Hash
-    {
+    where U: Hash {
         let mut sip = hasher;
         key.hash(&mut sip);
         sip.finish() as usize
     }
 
     fn populate(hashers: &[SipHasher; 2], nodes: &[&T], capacity_hint: usize) -> Vec<usize> {
-        let m = Sieve::new(capacity_hint * 2).primes_from(capacity_hint).next().unwrap();
+        let m = Sieve::new(capacity_hint * 2)
+            .primes_from(capacity_hint)
+            .next()
+            .unwrap();
         let n = nodes.len();
 
         let permutation: Vec<Vec<usize>> = nodes
@@ -149,8 +151,7 @@ where T: 'a + Hash
     /// assert_eq!(ring.get_node(&"point-1"), &"node-3");
     /// ```
     pub fn get_node<U>(&self, key: &U) -> &T
-    where U: Hash
-    {
+    where U: Hash {
         let index = Self::get_hash(self.hasher, key) % self.capacity();
         self.nodes[self.lookup[index]]
     }
