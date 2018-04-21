@@ -8,8 +8,7 @@ use util;
 /// node with a weight of 3 will receive approximately three times more points than a node with a
 /// weight of 1.
 pub struct Node<'a, T>
-where T: 'a + Hash + Ord
-{
+where T: 'a + Hash + Ord {
     id: &'a T,
     hash: u64,
     weight: f64,
@@ -17,8 +16,7 @@ where T: 'a + Hash + Ord
 }
 
 impl<'a, T> Node<'a, T>
-where T: 'a + Hash + Ord
-{
+where T: 'a + Hash + Ord {
     pub fn new(id: &'a T, weight: f64) -> Self {
         Node {
             id,
@@ -53,14 +51,12 @@ where T: 'a + Hash + Ord
 /// assert_eq!(iterator.next(), None);
 /// ```
 pub struct Ring<'a, T>
-where T: 'a + Hash + Ord
-{
+where T: 'a + Hash + Ord {
     nodes: Vec<Node<'a, T>>,
 }
 
 impl<'a, T> Ring<'a, T>
-where T: 'a + Hash + Ord
-{
+where T: 'a + Hash + Ord {
     fn rebalance(&mut self) {
         let mut rolling_product = 1f64;
         let len = self.nodes.len() as f64;
@@ -70,7 +66,8 @@ where T: 'a + Hash + Ord
             if i == 0 {
                 res = (len * self.nodes[i].weight).powf(1f64 / len);
             } else {
-                res = (len - index) * (self.nodes[i].weight - self.nodes[i - 1].weight) / rolling_product;
+                res = (len - index) * (self.nodes[i].weight - self.nodes[i - 1].weight)
+                    / rolling_product;
                 res += self.nodes[i - 1].relative_weight.powf(len - index);
                 res = res.powf(1f64 / (len - index));
             }
@@ -253,8 +250,7 @@ where T: 'a + Hash + Ord
 }
 
 impl<'a, T> IntoIterator for &'a Ring<'a, T>
-where T: Hash + Ord
-{
+where T: Hash + Ord {
     type Item = (&'a T, f64);
     type IntoIter = Box<Iterator<Item = (&'a T, f64)> + 'a>;
 
@@ -267,10 +263,15 @@ where T: Hash + Ord
 mod tests {
     use super::{Node, Ring};
     macro_rules! assert_approx_eq {
-        ($a:expr, $b:expr) => ({
+        ($a:expr, $b:expr) => {{
             let (a, b) = (&$a, &$b);
-            assert!((*a - *b).abs() < 1.0e-6, "{} is not approximately equal to {}", *a, *b);
-        })
+            assert!(
+                (*a - *b).abs() < 1.0e-6,
+                "{} is not approximately equal to {}",
+                *a,
+                *b
+            );
+        }};
     }
 
     #[test]

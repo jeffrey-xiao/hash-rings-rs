@@ -29,14 +29,12 @@ use util;
 /// assert_eq!(iterator.next(), None);
 /// ```
 pub struct Ring<'a, T>
-where T: 'a + Hash + Ord
-{
+where T: 'a + Hash + Ord {
     nodes: HashMap<&'a T, Vec<u64>>,
 }
 
 impl<'a, T> Ring<'a, T>
-where T: 'a + Hash + Ord
-{
+where T: 'a + Hash + Ord {
     /// Constructs a new, empty `Ring<T>`
     ///
     /// # Examples
@@ -183,8 +181,7 @@ where T: 'a + Hash + Ord
 }
 
 impl<'a, T> IntoIterator for &'a Ring<'a, T>
-where T: Hash + Ord
-{
+where T: Hash + Ord {
     type Item = (&'a T, usize);
     type IntoIter = Box<Iterator<Item = (&'a T, usize)> + 'a>;
 
@@ -194,8 +191,7 @@ where T: Hash + Ord
 }
 
 impl<'a, T> Default for Ring<'a, T>
-where T: 'a + Hash + Ord
-{
+where T: 'a + Hash + Ord {
     fn default() -> Self {
         Self::new()
     }

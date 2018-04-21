@@ -28,14 +28,12 @@ use util;
 /// assert_eq!(iterator.next(), None);
 /// ```
 pub struct Ring<'a, T>
-where T: 'a + Hash + Ord
-{
+where T: 'a + Hash + Ord {
     nodes: HashMap<&'a T, f32>,
 }
 
 impl<'a, T> Ring<'a, T>
-where T: 'a + Hash + Ord
-{
+where T: 'a + Hash + Ord {
     /// Constructs a new, empty `Ring<T>`
     ///
     /// # Examples
@@ -177,8 +175,7 @@ where T: 'a + Hash + Ord
 }
 
 impl<'a, T> IntoIterator for &'a Ring<'a, T>
-where T: Hash + Ord
-{
+where T: Hash + Ord {
     type Item = (&'a T, f32);
     type IntoIter = Box<Iterator<Item = (&'a T, f32)> + 'a>;
 
@@ -188,8 +185,7 @@ where T: Hash + Ord
 }
 
 impl<'a, T> Default for Ring<'a, T>
-where T: 'a + Hash + Ord
-{
+where T: 'a + Hash + Ord {
     fn default() -> Self {
         Self::new()
     }
@@ -306,7 +302,8 @@ where
                 let new_node = self.ring.get_node(point);
                 let point_hash = util::gen_hash(point);
                 let curr_hash = util::combine_hash(util::gen_hash(new_node), point_hash);
-                let curr_score = -self.ring.nodes[new_node] / (curr_hash as f32 / u64::max_value() as f32).ln();
+                let curr_score =
+                    -self.ring.nodes[new_node] / (curr_hash as f32 / u64::max_value() as f32).ln();
 
                 self.nodes.get_mut(new_node).unwrap().insert(point);
                 self.points.insert(point, (new_node, curr_score));
@@ -369,7 +366,8 @@ where
         let new_node = self.ring.get_node(point);
         let point_hash = util::gen_hash(point);
         let curr_hash = util::combine_hash(util::gen_hash(new_node), point_hash);
-        let curr_score = -self.ring.nodes[new_node] / (curr_hash as f32 / u64::max_value() as f32).ln();
+        let curr_score =
+            -self.ring.nodes[new_node] / (curr_hash as f32 / u64::max_value() as f32).ln();
 
         self.nodes.get_mut(new_node).unwrap().insert(point);
         self.points.insert(point, (new_node, curr_score));

@@ -33,15 +33,13 @@ use util;
 /// assert_eq!(iterator.next(), None);
 /// ```
 pub struct Ring<'a, T>
-where T: 'a + Hash + Eq
-{
+where T: 'a + Hash + Eq {
     nodes: TreapMap<u64, &'a T>,
     replicas: HashMap<&'a T, usize>,
 }
 
 impl<'a, T> Ring<'a, T>
-where T: 'a + Hash + Eq
-{
+where T: 'a + Hash + Eq {
     /// Constructs a new, empty `Ring<T>`
     ///
     /// # Examples
@@ -209,8 +207,7 @@ where T: 'a + Hash + Eq
 }
 
 impl<'a, T> IntoIterator for &'a Ring<'a, T>
-where T: Hash + Eq
-{
+where T: Hash + Eq {
     type Item = (&'a T, usize);
     type IntoIter = Box<Iterator<Item = (&'a T, usize)> + 'a>;
 
@@ -220,8 +217,7 @@ where T: Hash + Eq
 }
 
 impl<'a, T> Default for Ring<'a, T>
-where T: 'a + Hash + Eq
-{
+where T: 'a + Hash + Eq {
     fn default() -> Self {
         Self::new()
     }

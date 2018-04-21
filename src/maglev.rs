@@ -20,16 +20,14 @@ use std::iter;
 /// assert_eq!(ring.capacity(), 307);
 /// ```
 pub struct Ring<'a, T>
-where T: 'a + Hash
-{
+where T: 'a + Hash {
     nodes: Vec<&'a T>,
     lookup: Vec<usize>,
     hasher: SipHasher,
 }
 
 impl<'a, T> Ring<'a, T>
-where T: 'a + Hash
-{
+where T: 'a + Hash {
     fn get_hashers() -> [SipHasher; 2] {
         let mut rng = XorShiftRng::new_unseeded();
         [
