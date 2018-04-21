@@ -3,7 +3,7 @@ use std::hash::Hash;
 use std::vec::Vec;
 use util;
 
-/// A hashing ring implementing using rendezvous hashing.
+/// A hashing ring implemented using rendezvous hashing.
 ///
 /// Rendezvous hashing is based on based on assigning a pseudorandom value to node-point pair.
 /// A point is mapped to the node that yields the greatest value associated with the node-point
@@ -14,32 +14,36 @@ use util;
 /// ```
 /// use hash_rings::rendezvous::Ring;
 ///
-/// let mut r = Ring::new();
+/// let mut ring = Ring::new();
 ///
-/// r.insert_node(&"node-1", 1);
-/// r.insert_node(&"node-2", 3);
+/// ring.insert_node(&"node-1", 1);
+/// ring.insert_node(&"node-2", 3);
 ///
-/// r.remove_node(&"node-1");
+/// ring.remove_node(&"node-1");
 ///
-/// assert_eq!(r.get_node(&"point-1"), &"node-2");
-/// assert_eq!(r.len(), 1);
+/// assert_eq!(ring.get_node(&"point-1"), &"node-2");
+/// assert_eq!(ring.len(), 1);
 ///
-/// let mut iterator = r.iter();
+/// let mut iterator = ring.iter();
 /// assert_eq!(iterator.next(), Some((&"node-2", 3)));
 /// assert_eq!(iterator.next(), None);
 /// ```
-pub struct Ring<'a, T: 'a + Hash + Ord> {
+pub struct Ring<'a, T>
+where T: 'a + Hash + Ord
+{
     nodes: HashMap<&'a T, Vec<u64>>,
 }
 
-impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
+impl<'a, T> Ring<'a, T>
+where T: 'a + Hash + Ord
+{
     /// Constructs a new, empty `Ring<T>`
     ///
     /// # Examples
     /// ```
     /// use hash_rings::rendezvous::Ring;
     ///
-    /// let mut r: Ring<&str> = Ring::new();
+    /// let mut ring: Ring<&str> = Ring::new();
     /// ```
     pub fn new() -> Self {
         Ring {
@@ -57,11 +61,11 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     /// ```
     /// use hash_rings::rendezvous::Ring;
     ///
-    /// let mut r: Ring<&str> = Ring::new();
+    /// let mut ring: Ring<&str> = Ring::new();
     ///
     /// // "node-2" will receive three times more points than "node-1"
-    /// r.insert_node(&"node-1", 1);
-    /// r.insert_node(&"node-2", 3);
+    /// ring.insert_node(&"node-1", 1);
+    /// ring.insert_node(&"node-2", 3);
     /// ```
     pub fn insert_node(&mut self, id: &'a T, replicas: usize) {
         let hashes = (0..replicas)
@@ -76,11 +80,11 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     /// ```
     /// use hash_rings::rendezvous::Ring;
     ///
-    /// let mut r: Ring<&str> = Ring::new();
+    /// let mut ring: Ring<&str> = Ring::new();
     ///
-    /// r.insert_node(&"node-1", 1);
-    /// r.insert_node(&"node-2", 1);
-    /// r.remove_node(&"node-2");
+    /// ring.insert_node(&"node-1", 1);
+    /// ring.insert_node(&"node-2", 1);
+    /// ring.remove_node(&"node-2");
     /// ```
     pub fn remove_node(&mut self, id: &T) {
         self.nodes.remove(id);
@@ -95,12 +99,14 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     /// ```
     /// use hash_rings::rendezvous::Ring;
     ///
-    /// let mut r: Ring<&str> = Ring::new();
+    /// let mut ring: Ring<&str> = Ring::new();
     ///
-    /// r.insert_node(&"node-1", 1);
-    /// assert_eq!(r.get_node(&"point-1"), &"node-1");
+    /// ring.insert_node(&"node-1", 1);
+    /// assert_eq!(ring.get_node(&"point-1"), &"node-1");
     /// ```
-    pub fn get_node<U: Hash + Eq>(&self, id: &U) -> &'a T {
+    pub fn get_node<U>(&self, id: &U) -> &'a T
+    where U: Hash + Eq
+    {
         let point_hash = util::gen_hash(id);
         self.nodes
             .iter()
@@ -125,10 +131,10 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     /// ```
     /// use hash_rings::rendezvous::Ring;
     ///
-    /// let mut r: Ring<&str> = Ring::new();
+    /// let mut ring: Ring<&str> = Ring::new();
     ///
-    /// r.insert_node(&"node-1", 3);
-    /// assert_eq!(r.len(), 1);
+    /// ring.insert_node(&"node-1", 3);
+    /// assert_eq!(ring.len(), 1);
     /// ```
     pub fn len(&self) -> usize {
         self.nodes.len()
@@ -140,11 +146,11 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     /// ```
     /// use hash_rings::rendezvous::Ring;
     ///
-    /// let mut r: Ring<&str> = Ring::new();
+    /// let mut ring: Ring<&str> = Ring::new();
     ///
-    /// assert!(r.is_empty());
-    /// r.insert_node(&"node-1", 3);
-    /// assert!(!r.is_empty());
+    /// assert!(ring.is_empty());
+    /// ring.insert_node(&"node-1", 3);
+    /// assert!(!ring.is_empty());
     /// ```
     pub fn is_empty(&self) -> bool {
         self.nodes.is_empty()
@@ -157,10 +163,10 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     /// ```
     /// use hash_rings::rendezvous::Ring;
     ///
-    /// let mut r = Ring::new();
-    /// r.insert_node(&"node-1", 1);
+    /// let mut ring = Ring::new();
+    /// ring.insert_node(&"node-1", 1);
     ///
-    /// let mut iterator = r.iter();
+    /// let mut iterator = ring.iter();
     /// assert_eq!(iterator.next(), Some((&"node-1", 1)));
     /// assert_eq!(iterator.next(), None);
     /// ```
@@ -172,7 +178,9 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     }
 }
 
-impl<'a, T: Hash + Ord> IntoIterator for &'a Ring<'a, T> {
+impl<'a, T> IntoIterator for &'a Ring<'a, T>
+where T: Hash + Ord
+{
     type Item = (&'a T, usize);
     type IntoIter = Box<Iterator<Item = (&'a T, usize)> + 'a>;
 
@@ -181,7 +189,9 @@ impl<'a, T: Hash + Ord> IntoIterator for &'a Ring<'a, T> {
     }
 }
 
-impl<'a, T: 'a + Hash + Ord> Default for Ring<'a, T> {
+impl<'a, T> Default for Ring<'a, T>
+where T: 'a + Hash + Ord
+{
     fn default() -> Self {
         Self::new()
     }
@@ -193,31 +203,39 @@ impl<'a, T: 'a + Hash + Ord> Default for Ring<'a, T> {
 /// ```
 /// use hash_rings::rendezvous::Client;
 ///
-/// let mut c = Client::new();
-/// c.insert_node(&"node-1", 3);
-/// c.insert_point(&"point-1");
-/// c.insert_point(&"point-2");
+/// let mut client = Client::new();
+/// client.insert_node(&"node-1", 3);
+/// client.insert_point(&"point-1");
+/// client.insert_point(&"point-2");
 ///
-/// assert_eq!(c.len(), 1);
-/// assert_eq!(c.get_node(&"point-1"), &"node-1");
+/// assert_eq!(client.len(), 1);
+/// assert_eq!(client.get_node(&"point-1"), &"node-1");
 ///
-/// c.remove_point(&"point-2");
-/// assert_eq!(c.get_points(&"node-1"), [&"point-1"]);
+/// client.remove_point(&"point-2");
+/// assert_eq!(client.get_points(&"node-1"), [&"point-1"]);
 /// ```
-pub struct Client<'a, T: 'a + Hash + Ord, U: 'a + Hash + Eq> {
+pub struct Client<'a, T, U>
+where
+    T: 'a + Hash + Ord,
+    U: 'a + Hash + Eq,
+{
     ring: Ring<'a, T>,
     nodes: HashMap<&'a T, HashSet<&'a U>>,
     points: HashMap<&'a U, (&'a T, u64)>,
 }
 
-impl<'a, T: 'a + Hash + Ord, U: 'a + Hash + Eq> Client<'a, T, U> {
+impl<'a, T, U> Client<'a, T, U>
+where
+    T: 'a + Hash + Ord,
+    U: 'a + Hash + Eq,
+{
     /// Constructs a new, empty `Client<T, U>`
     ///
     /// # Examples
     /// ```
     /// use hash_rings::rendezvous::Client;
     ///
-    /// let mut c: Client<&str, &str> = Client::new();
+    /// let mut client: Client<&str, &str> = Client::new();
     /// ```
     pub fn new() -> Self {
         Client {
@@ -237,11 +255,11 @@ impl<'a, T: 'a + Hash + Ord, U: 'a + Hash + Eq> Client<'a, T, U> {
     /// ```
     /// use hash_rings::rendezvous::Client;
     ///
-    /// let mut c: Client<&str, &str> = Client::new();
+    /// let mut client: Client<&str, &str> = Client::new();
     ///
     /// // "node-2" will receive three times more points than "node-1"
-    /// c.insert_node(&"node-1", 1);
-    /// c.insert_node(&"node-2", 3);
+    /// client.insert_node(&"node-1", 1);
+    /// client.insert_node(&"node-2", 3);
     /// ```
     pub fn insert_node(&mut self, id: &'a T, replicas: usize) {
         self.ring.insert_node(id, replicas);
@@ -278,11 +296,11 @@ impl<'a, T: 'a + Hash + Ord, U: 'a + Hash + Eq> Client<'a, T, U> {
     /// ```
     /// use hash_rings::rendezvous::Client;
     ///
-    /// let mut c: Client<&str, &str> = Client::new();
+    /// let mut client: Client<&str, &str> = Client::new();
     ///
-    /// c.insert_node(&"node-1", 1);
-    /// c.insert_node(&"node-2", 1);
-    /// c.remove_node(&"node-1");
+    /// client.insert_node(&"node-1", 1);
+    /// client.insert_node(&"node-2", 1);
+    /// client.remove_node(&"node-1");
     /// ```
     pub fn remove_node(&mut self, id: &T) {
         self.ring.remove_node(id);
@@ -315,11 +333,11 @@ impl<'a, T: 'a + Hash + Ord, U: 'a + Hash + Eq> Client<'a, T, U> {
     /// ```
     /// use hash_rings::rendezvous::Client;
     ///
-    /// let mut c: Client<&str, &str> = Client::new();
+    /// let mut client: Client<&str, &str> = Client::new();
     ///
-    /// c.insert_node(&"node-1", 1);
-    /// c.insert_point(&"point-1");
-    /// assert_eq!(c.get_points(&"node-1"), [&"point-1"]);
+    /// client.insert_node(&"node-1", 1);
+    /// client.insert_point(&"point-1");
+    /// assert_eq!(client.get_points(&"node-1"), [&"point-1"]);
     /// ```
     pub fn get_points(&mut self, id: &T) -> Vec<&U> {
         self.nodes[id].iter().map(|point| *point).collect()
@@ -334,11 +352,11 @@ impl<'a, T: 'a + Hash + Ord, U: 'a + Hash + Eq> Client<'a, T, U> {
     /// ```
     /// use hash_rings::rendezvous::Client;
     ///
-    /// let mut c: Client<&str, &str> = Client::new();
+    /// let mut client: Client<&str, &str> = Client::new();
     ///
-    /// c.insert_node(&"node-1", 1);
-    /// c.insert_point(&"point-1");
-    /// assert_eq!(c.get_node(&"point-1"), &"node-1");
+    /// client.insert_node(&"node-1", 1);
+    /// client.insert_point(&"point-1");
+    /// assert_eq!(client.get_node(&"point-1"), &"node-1");
     /// ```
     pub fn get_node(&mut self, point: &U) -> &T {
         self.ring.get_node(point)
@@ -353,9 +371,9 @@ impl<'a, T: 'a + Hash + Ord, U: 'a + Hash + Eq> Client<'a, T, U> {
     /// ```
     /// use hash_rings::rendezvous::Client;
     ///
-    /// let mut c = Client::new();
-    /// c.insert_node(&"node-1", 1);
-    /// c.insert_point(&"point-1");
+    /// let mut client = Client::new();
+    /// client.insert_node(&"node-1", 1);
+    /// client.insert_point(&"point-1");
     /// ```
     pub fn insert_point(&mut self, point: &'a U) {
         let node = self.ring.get_node(point);
@@ -379,10 +397,10 @@ impl<'a, T: 'a + Hash + Ord, U: 'a + Hash + Eq> Client<'a, T, U> {
     /// ```
     /// use hash_rings::rendezvous::Client;
     ///
-    /// let mut c = Client::new();
-    /// c.insert_node(&"node-1", 1);
-    /// c.insert_point(&"point-1");
-    /// c.remove_point(&"point-1");
+    /// let mut client = Client::new();
+    /// client.insert_node(&"node-1", 1);
+    /// client.insert_point(&"point-1");
+    /// client.remove_point(&"point-1");
     /// ```
     pub fn remove_point(&mut self, point: &U) {
         let node = self.ring.get_node(point);
@@ -396,10 +414,10 @@ impl<'a, T: 'a + Hash + Ord, U: 'a + Hash + Eq> Client<'a, T, U> {
     /// ```
     /// use hash_rings::rendezvous::Client;
     ///
-    /// let mut c: Client<&str, &str> = Client::new();
+    /// let mut client: Client<&str, &str> = Client::new();
     ///
-    /// c.insert_node(&"node-1", 3);
-    /// assert_eq!(c.len(), 1);
+    /// client.insert_node(&"node-1", 3);
+    /// assert_eq!(client.len(), 1);
     /// ```
     pub fn len(&self) -> usize {
         self.nodes.len()
@@ -411,11 +429,11 @@ impl<'a, T: 'a + Hash + Ord, U: 'a + Hash + Eq> Client<'a, T, U> {
     /// ```
     /// use hash_rings::rendezvous::Client;
     ///
-    /// let mut c: Client<&str, &str> = Client::new();
+    /// let mut client: Client<&str, &str> = Client::new();
     ///
-    /// assert!(c.is_empty());
-    /// c.insert_node(&"node-1", 3);
-    /// assert!(!c.is_empty());
+    /// assert!(client.is_empty());
+    /// client.insert_node(&"node-1", 3);
+    /// assert!(!client.is_empty());
     /// ```
     pub fn is_empty(&self) -> bool {
         self.ring.is_empty()
@@ -428,11 +446,11 @@ impl<'a, T: 'a + Hash + Ord, U: 'a + Hash + Eq> Client<'a, T, U> {
     /// ```
     /// use hash_rings::rendezvous::Client;
     ///
-    /// let mut c = Client::new();
-    /// c.insert_node(&"node-1", 1);
-    /// c.insert_point(&"point-1");
+    /// let mut client = Client::new();
+    /// client.insert_node(&"node-1", 1);
+    /// client.insert_point(&"point-1");
     ///
-    /// let mut iterator = c.iter();
+    /// let mut iterator = client.iter();
     /// assert_eq!(iterator.next(), Some((&"node-1", vec![&"point-1"])));
     /// assert_eq!(iterator.next(), None);
     /// ```
@@ -444,7 +462,11 @@ impl<'a, T: 'a + Hash + Ord, U: 'a + Hash + Eq> Client<'a, T, U> {
     }
 }
 
-impl<'a, T: Hash + Ord, U: Hash + Eq> IntoIterator for &'a Client<'a, T, U> {
+impl<'a, T, U> IntoIterator for &'a Client<'a, T, U>
+where
+    T: Hash + Ord,
+    U: Hash + Eq,
+{
     type Item = (&'a T, Vec<&'a U>);
     type IntoIter = Box<Iterator<Item = (&'a T, Vec<&'a U>)> + 'a>;
 
@@ -453,7 +475,11 @@ impl<'a, T: Hash + Ord, U: Hash + Eq> IntoIterator for &'a Client<'a, T, U> {
     }
 }
 
-impl<'a, T: Hash + Ord, U: Hash + Eq> Default for Client<'a, T, U> {
+impl<'a, T, U> Default for Client<'a, T, U>
+where
+    T: Hash + Ord,
+    U: Hash + Eq,
+{
     fn default() -> Self {
         Self::new()
     }

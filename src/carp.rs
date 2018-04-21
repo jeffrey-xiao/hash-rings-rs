@@ -7,14 +7,18 @@ use util;
 /// The distribution of points to nodes is proportional to the weights of the nodes. For example, a
 /// node with a weight of 3 will receive approximately three times more points than a node with a
 /// weight of 1.
-pub struct Node<'a, T: 'a + Hash + Ord> {
+pub struct Node<'a, T>
+where T: 'a + Hash + Ord
+{
     id: &'a T,
     hash: u64,
     weight: f64,
     relative_weight: f64,
 }
 
-impl<'a, T: 'a + Hash + Ord> Node<'a, T> {
+impl<'a, T> Node<'a, T>
+where T: 'a + Hash + Ord
+{
     pub fn new(id: &'a T, weight: f64) -> Self {
         Node {
             id,
@@ -34,25 +38,29 @@ impl<'a, T: 'a + Hash + Ord> Node<'a, T> {
 /// ```
 /// use hash_rings::carp::{Node, Ring};
 ///
-/// let mut r = Ring::new(vec![
+/// let mut ring = Ring::new(vec![
 ///     Node::new(&"node-1", 1f64),
 ///     Node::new(&"node-2", 3f64),
 /// ]);
 ///
-/// r.remove_node(&"node-1");
+/// ring.remove_node(&"node-1");
 ///
-/// assert_eq!(r.get_node(&"point-1"), &"node-2");
-/// assert_eq!(r.len(), 1);
+/// assert_eq!(ring.get_node(&"point-1"), &"node-2");
+/// assert_eq!(ring.len(), 1);
 ///
-/// let mut iterator = r.iter();
+/// let mut iterator = ring.iter();
 /// assert_eq!(iterator.next(), Some((&"node-2", 3f64)));
 /// assert_eq!(iterator.next(), None);
 /// ```
-pub struct Ring<'a, T: 'a + Hash + Ord> {
+pub struct Ring<'a, T>
+where T: 'a + Hash + Ord
+{
     nodes: Vec<Node<'a, T>>,
 }
 
-impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
+impl<'a, T> Ring<'a, T>
+where T: 'a + Hash + Ord
+{
     fn rebalance(&mut self) {
         let mut rolling_product = 1f64;
         let len = self.nodes.len() as f64;
@@ -83,7 +91,7 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     /// ```
     /// use hash_rings::carp::Ring;
     ///
-    /// let mut r: Ring<&str> = Ring::new(vec![]);
+    /// let mut ring: Ring<&str> = Ring::new(vec![]);
     /// ```
     pub fn new(mut nodes: Vec<Node<'a, T>>) -> Ring<'a, T> {
         nodes.reverse();
@@ -111,11 +119,11 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
-    /// let mut r = Ring::new(vec![
+    /// let mut ring = Ring::new(vec![
     ///     Node::new(&"node-1", 1f64),
     /// ]);
     ///
-    /// r.remove_node(&"node-1");
+    /// ring.remove_node(&"node-1");
     /// ```
     pub fn insert_node(&mut self, new_node: Node<'a, T>) {
         if let Some(index) = self.nodes.iter().position(|node| node.id == new_node.id) {
@@ -139,12 +147,12 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
-    /// let mut r = Ring::new(vec![
+    /// let mut ring = Ring::new(vec![
     ///     Node::new(&"node-1", 1f64),
     ///     Node::new(&"node-2", 3f64),
     /// ]);
     ///
-    /// r.remove_node(&"node-2");
+    /// ring.remove_node(&"node-2");
     /// ```
     pub fn remove_node(&mut self, id: &T) {
         if let Some(index) = self.nodes.iter().position(|node| node.id == id) {
@@ -159,13 +167,15 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
-    /// let mut r = Ring::new(vec![
+    /// let mut ring = Ring::new(vec![
     ///     Node::new(&"node-1", 1f64),
     /// ]);
     ///
-    /// assert_eq!(r.get_node(&"point-1"), &"node-1");
+    /// assert_eq!(ring.get_node(&"point-1"), &"node-1");
     /// ```
-    pub fn get_node<U: Hash + Eq>(&self, point: &U) -> &'a T {
+    pub fn get_node<U>(&self, point: &U) -> &'a T
+    where U: Hash + Eq
+    {
         let point_hash = util::gen_hash(point);
         self.nodes
             .iter()
@@ -192,12 +202,12 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
-    /// let mut r = Ring::new(vec![
+    /// let mut ring = Ring::new(vec![
     ///     Node::new(&"node-1", 1f64),
     ///     Node::new(&"node-2", 3f64),
     /// ]);
     ///
-    /// assert_eq!(r.len(), 2);
+    /// assert_eq!(ring.len(), 2);
     /// ```
     pub fn len(&self) -> usize {
         self.nodes.len()
@@ -209,12 +219,12 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
-    /// let mut r = Ring::new(vec![
+    /// let mut ring = Ring::new(vec![
     ///     Node::new(&"node-1", 1f64),
     ///     Node::new(&"node-2", 3f64),
     /// ]);
     ///
-    /// assert_eq!(r.len(), 2);
+    /// assert_eq!(ring.len(), 2);
     /// ```
     pub fn is_empty(&self) -> bool {
         self.nodes.is_empty()
@@ -228,12 +238,12 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
-    /// let mut r = Ring::new(vec![
+    /// let mut ring = Ring::new(vec![
     ///     Node::new(&"node-1", 1f64),
     ///     Node::new(&"node-2", 3f64),
     /// ]);
     ///
-    /// let mut iterator = r.iter();
+    /// let mut iterator = ring.iter();
     /// assert_eq!(iterator.next(), Some((&"node-1", 1f64)));
     /// assert_eq!(iterator.next(), Some((&"node-2", 3f64)));
     /// assert_eq!(iterator.next(), None);
@@ -243,7 +253,9 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     }
 }
 
-impl<'a, T: Hash + Ord> IntoIterator for &'a Ring<'a, T> {
+impl<'a, T> IntoIterator for &'a Ring<'a, T>
+where T: Hash + Ord
+{
     type Item = (&'a T, f64);
     type IntoIter = Box<Iterator<Item = (&'a T, f64)> + 'a>;
 
