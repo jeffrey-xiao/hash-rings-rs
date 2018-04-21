@@ -14,5 +14,7 @@ keywords = ["hash", "data-structures"]
 include = ["src/**/*", "Cargo.toml"]
 
 [dependencies]
-rand = "0.4"
 extended-collections = "0.1"
+primal = "0.2"
+rand = "0.4"
+siphasher = "0.2"

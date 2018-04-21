@@ -274,7 +274,6 @@ mod tests {
         })
     }
 
-
     #[test]
     fn test_size_empty() {
         let ring: Ring<u32> = Ring::new(vec![]);
