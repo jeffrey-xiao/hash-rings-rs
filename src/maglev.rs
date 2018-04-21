@@ -81,7 +81,7 @@ where T: 'a + Hash
         sip.finish() as usize
     }
 
-    fn populate(hashers: &[SipHasher; 2], nodes: &Vec<&T>, capacity_hint: usize) -> Vec<usize> {
+    fn populate(hashers: &[SipHasher; 2], nodes: &[&T], capacity_hint: usize) -> Vec<usize> {
         let m = Sieve::new(capacity_hint * 2).primes_from(capacity_hint).next().unwrap();
         let n = nodes.len();
 
