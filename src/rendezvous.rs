@@ -1,5 +1,5 @@
-use std::hash::Hash;
 use std::collections::{HashMap, HashSet};
+use std::hash::Hash;
 use std::vec::Vec;
 use util;
 
@@ -50,8 +50,8 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     /// Inserts a node into the ring with a number of replicas.
     ///
     /// Increasing the number of replicas will increase the number of expected points mapped to the
-    /// node. For example, a node with three replicas will receive approximately three times more points
-    /// than a node with one replica.
+    /// node. For example, a node with three replicas will receive approximately three times more
+    /// points than a node with one replica.
     ///
     /// # Examples
     /// ```
@@ -102,12 +102,17 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     /// ```
     pub fn get_node<U: Hash + Eq>(&self, id: &U) -> &'a T {
         let point_hash = util::gen_hash(id);
-        self.nodes.iter().map(|entry| {
-            (
-                entry.1.iter().map(|hash| util::combine_hash(*hash, point_hash)).max().unwrap(),
-                entry.0,
-            )
-        }).max().unwrap().1
+        self.nodes
+            .iter()
+            .map(|entry| {
+                (
+                    entry.1.iter().map(|hash| util::combine_hash(*hash, point_hash)).max().unwrap(),
+                    entry.0,
+                )
+            })
+            .max()
+            .unwrap()
+            .1
     }
 
     fn get_hashes(&self, id: &T) -> Vec<u64> {
@@ -225,8 +230,8 @@ impl<'a, T: 'a + Hash + Ord, U: 'a + Hash + Eq> Client<'a, T, U> {
     /// Inserts a node into the ring with a number of replicas.
     ///
     /// Increasing the number of replicas will increase the number of expected points mapped to the
-    /// node. For example, a node with three replicas will receive approximately three times more points
-    /// than a node with one replica.
+    /// node. For example, a node with three replicas will receive approximately three times more
+    /// points than a node with one replica.
     ///
     /// # Examples
     /// ```
@@ -247,7 +252,11 @@ impl<'a, T: 'a + Hash + Ord, U: 'a + Hash + Eq> Client<'a, T, U> {
         for (point, node_entry) in &mut self.points {
             let (ref mut original_node, ref mut original_score) = *node_entry;
             let point_hash = util::gen_hash(point);
-            let max_score = hashes.iter().map(|hash| util::combine_hash(*hash, point_hash)).max().unwrap();
+            let max_score = hashes
+                .iter()
+                .map(|hash| util::combine_hash(*hash, point_hash))
+                .max()
+                .unwrap();
 
             if max_score > *original_score {
                 self.nodes.get_mut(original_node).unwrap().remove(point);
@@ -285,7 +294,11 @@ impl<'a, T: 'a + Hash + Ord, U: 'a + Hash + Eq> Client<'a, T, U> {
                 let new_node = self.ring.get_node(point);
                 let hashes = self.ring.get_hashes(new_node);
                 let point_hash = util::gen_hash(point);
-                let max_score = hashes.iter().map(|hash| util::combine_hash(*hash, point_hash)).max().unwrap();
+                let max_score = hashes
+                    .iter()
+                    .map(|hash| util::combine_hash(*hash, point_hash))
+                    .max()
+                    .unwrap();
 
                 self.nodes.get_mut(new_node).unwrap().insert(point);
                 self.points.insert(point, (new_node, max_score));
@@ -348,7 +361,11 @@ impl<'a, T: 'a + Hash + Ord, U: 'a + Hash + Eq> Client<'a, T, U> {
         let node = self.ring.get_node(point);
         let hashes = self.ring.get_hashes(node);
         let point_hash = util::gen_hash(point);
-        let max_score = hashes.iter().map(|hash| util::combine_hash(*hash, point_hash)).max().unwrap();
+        let max_score = hashes
+            .iter()
+            .map(|hash| util::combine_hash(*hash, point_hash))
+            .max()
+            .unwrap();
         self.nodes.get_mut(node).unwrap().insert(point);
         self.points.insert(point, (node, max_score));
     }
@@ -495,7 +512,7 @@ mod tests {
         client.insert_node(&0, 1);
         client.insert_point(&0);
         client.insert_node(&1, 1);
-        assert_eq!(client.get_points(&1).as_slice(), [&0u32,]);
+        assert_eq!(client.get_points(&1).as_slice(), [&0u32]);
     }
 
     #[test]
@@ -505,7 +522,7 @@ mod tests {
         client.insert_point(&0);
         client.insert_node(&1, 1);
         client.remove_node(&1);
-        assert_eq!(client.get_points(&0), [&0,]);
+        assert_eq!(client.get_points(&0), [&0]);
     }
 
     #[test]
@@ -520,7 +537,7 @@ mod tests {
         let mut client: Client<u32, u32> = Client::new();
         client.insert_node(&0, 3);
         client.insert_point(&0);
-        assert_eq!(client.get_points(&0).as_slice(), [&0u32,]);
+        assert_eq!(client.get_points(&0).as_slice(), [&0u32]);
     }
 
     #[test]

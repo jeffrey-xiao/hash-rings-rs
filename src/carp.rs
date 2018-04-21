@@ -167,18 +167,23 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     /// ```
     pub fn get_node<U: Hash + Eq>(&self, point: &U) -> &'a T {
         let point_hash = util::gen_hash(point);
-        self.nodes.iter().map(|node| {
-            (
-                util::combine_hash(node.hash, point_hash) as f64 * node.relative_weight,
-                node.id,
-            )
-        }).max_by(|n, m| {
-            if n == m {
-                n.1.cmp(m.1)
-            } else {
-                n.0.partial_cmp(&m.0).unwrap()
-            }
-        }).unwrap().1
+        self.nodes
+            .iter()
+            .map(|node| {
+                (
+                    util::combine_hash(node.hash, point_hash) as f64 * node.relative_weight,
+                    node.id,
+                )
+            })
+            .max_by(|n, m| {
+                if n == m {
+                    n.1.cmp(m.1)
+                } else {
+                    n.0.partial_cmp(&m.0).unwrap()
+                }
+            })
+            .unwrap()
+            .1
     }
 
     /// Returns the number of nodes in the ring.
@@ -296,9 +301,7 @@ mod tests {
 
     #[test]
     fn test_insert_node() {
-        let mut ring = Ring::new(vec![
-            Node::new(&0, 0.5),
-        ]);
+        let mut ring = Ring::new(vec![Node::new(&0, 0.5)]);
         ring.insert_node(Node::new(&1, 0.5));
 
         assert_eq!(ring.nodes[0].id, &0);
@@ -309,10 +312,7 @@ mod tests {
 
     #[test]
     fn test_insert_node_replace() {
-        let mut ring = Ring::new(vec![
-            Node::new(&0, 0.5),
-            Node::new(&1, 0.1),
-        ]);
+        let mut ring = Ring::new(vec![Node::new(&0, 0.5), Node::new(&1, 0.1)]);
         ring.insert_node(Node::new(&1, 0.5));
 
         assert_eq!(ring.nodes[0].id, &0);
@@ -338,9 +338,7 @@ mod tests {
 
     #[test]
     fn test_get_node() {
-        let ring = Ring::new(vec![
-            Node::new(&0, 1.0),
-        ]);
+        let ring = Ring::new(vec![Node::new(&0, 1.0)]);
 
         assert_eq!(ring.get_node(&0), &0);
         assert_eq!(ring.get_node(&1), &0);

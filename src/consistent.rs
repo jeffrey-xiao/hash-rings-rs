@@ -1,8 +1,8 @@
-use std::hash::Hash;
 use std::collections::{HashMap, HashSet};
-use std::vec::Vec;
-use std::mem;
+use std::hash::Hash;
 use std::iter::Iterator;
+use std::mem;
+use std::vec::Vec;
 
 use extended_collections::treap::TreapMap;
 use util;
@@ -57,9 +57,11 @@ impl<'a, T: 'a + Hash + Eq> Ring<'a, T> {
     fn get_next_node(&mut self, hash: &u64) -> Option<&T> {
         match self.nodes.ceil(hash) {
             Some(&hash) => Some(&*self.nodes[&hash]),
-            None => match self.nodes.min() {
-                Some(&hash) => Some(&*self.nodes[&hash]),
-                None => None,
+            None => {
+                match self.nodes.min() {
+                    Some(&hash) => Some(&*self.nodes[&hash]),
+                    None => None,
+                }
             },
         }
     }
@@ -67,8 +69,8 @@ impl<'a, T: 'a + Hash + Eq> Ring<'a, T> {
     /// Inserts a node into the ring with a number of replicas.
     ///
     /// Increasing the number of replicas will increase the number of expected points mapped to the
-    /// node. For example, a node with three replicas will receive approximately three times more points
-    /// than a node with one replica.
+    /// node. For example, a node with three replicas will receive approximately three times more
+    /// points than a node with one replica.
     ///
     /// # Examples
     /// ```
@@ -258,9 +260,11 @@ impl<'a, T: 'a + Hash + Eq, U: Hash + Eq> Client<'a, T, U> {
     fn get_next_node(&mut self, hash: &u64) -> Option<(u64, &mut HashSet<&'a U>)> {
         match self.data.ceil(hash) {
             Some(&hash) => Some((hash, &mut self.data[&hash])),
-            None => match self.data.min() {
-                Some(&hash) => Some((hash, &mut self.data[&hash])),
-                None => None,
+            None => {
+                match self.data.min() {
+                    Some(&hash) => Some((hash, &mut self.data[&hash])),
+                    None => None,
+                }
             },
         }
     }
@@ -268,8 +272,8 @@ impl<'a, T: 'a + Hash + Eq, U: Hash + Eq> Client<'a, T, U> {
     /// Inserts a node into the ring with a number of replicas.
     ///
     /// Increasing the number of replicas will increase the number of expected points mapped to the
-    /// node. For example, a node with three replicas will receive approximately three times more points
-    /// than a node with one replica.
+    /// node. For example, a node with three replicas will receive approximately three times more
+    /// points than a node with one replica.
     ///
     /// # Examples
     /// ```
@@ -565,7 +569,7 @@ mod tests {
         client.insert_node(&Key(0), 1);
         client.insert_point(&0);
         client.insert_node(&Key(1), 1);
-        assert_eq!(client.get_points(&Key(1)).as_slice(), [&0u32,]);
+        assert_eq!(client.get_points(&Key(1)).as_slice(), [&0u32]);
     }
 
     #[test]
@@ -575,8 +579,8 @@ mod tests {
         client.insert_point(&0);
         client.insert_point(&1);
         client.insert_node(&1, 1);
-        assert_eq!(client.get_points(&0).as_slice(), [&1u32,]);
-        assert_eq!(client.get_points(&1).as_slice(), [&0u32,]);
+        assert_eq!(client.get_points(&0).as_slice(), [&1u32]);
+        assert_eq!(client.get_points(&1).as_slice(), [&0u32]);
     }
 
     #[test]
@@ -586,7 +590,7 @@ mod tests {
         client.insert_point(&0);
         client.insert_node(&1, 1);
         client.remove_node(&1);
-        assert_eq!(client.get_points(&0), [&0,]);
+        assert_eq!(client.get_points(&0), [&0]);
     }
 
     #[test]
@@ -601,7 +605,7 @@ mod tests {
         let mut client: Client<u32, u32> = Client::new();
         client.insert_node(&0, 3);
         client.insert_point(&0);
-        assert_eq!(client.get_points(&0).as_slice(), [&0u32,]);
+        assert_eq!(client.get_points(&0).as_slice(), [&0u32]);
     }
 
     #[test]

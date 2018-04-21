@@ -1,5 +1,5 @@
-use std::hash::Hash;
 use std::collections::{HashMap, HashSet};
+use std::hash::Hash;
 use std::vec::Vec;
 use util;
 
@@ -98,19 +98,24 @@ impl<'a, T: 'a + Hash + Ord> Ring<'a, T> {
     /// ```
     pub fn get_node<U: Hash + Eq>(&self, key: &U) -> &'a T {
         let point_hash = util::gen_hash(key);
-        self.nodes.iter().map(|entry| {
-            let hash = util::combine_hash(util::gen_hash(entry.0), point_hash);
-            (
-                -entry.1 / (hash as f32 / u64::max_value() as f32).ln(),
-                entry.0,
-            )
-        }).max_by(|n, m| {
-            if n == m {
-                n.1.cmp(m.1)
-            } else {
-                n.0.partial_cmp(&m.0).unwrap()
-            }
-        }).unwrap().1
+        self.nodes
+            .iter()
+            .map(|entry| {
+                let hash = util::combine_hash(util::gen_hash(entry.0), point_hash);
+                (
+                    -entry.1 / (hash as f32 / u64::max_value() as f32).ln(),
+                    entry.0,
+                )
+            })
+            .max_by(|n, m| {
+                if n == m {
+                    n.1.cmp(m.1)
+                } else {
+                    n.0.partial_cmp(&m.0).unwrap()
+                }
+            })
+            .unwrap()
+            .1
     }
 
     /// Returns the number of nodes in the ring.
@@ -495,7 +500,7 @@ mod tests {
         client.insert_node(&0, 0f32);
         client.insert_point(&0);
         client.insert_node(&1, 1f32);
-        assert_eq!(client.get_points(&1).as_slice(), [&0u32,]);
+        assert_eq!(client.get_points(&1).as_slice(), [&0u32]);
     }
 
     #[test]
@@ -529,7 +534,7 @@ mod tests {
         let mut client: Client<u32, u32> = Client::new();
         client.insert_node(&0, 3f32);
         client.insert_point(&0);
-        assert_eq!(client.get_points(&0).as_slice(), [&0u32,]);
+        assert_eq!(client.get_points(&0).as_slice(), [&0u32]);
     }
 
     #[test]
