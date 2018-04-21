@@ -7,7 +7,7 @@ use std::iter;
 /// A hashing ring implemented using maglev hashing.
 ///
 /// Maglev hashing produces a lookup table that allows finding a node in constant time by
-/// generating random permutations of nodes.
+/// generating random permutations.
 ///
 /// # Examples
 /// ```
