@@ -84,6 +84,12 @@ mod tests {
     use super::Ring;
 
     #[test]
+    #[should_panic]
+    fn test_new_zero_nodes() {
+        let ring = Ring::new(0);
+    }
+
+    #[test]
     fn test_get_node() {
         let ring = Ring::new(100);
         assert_eq!(ring.get_node(&"foo"), 8);

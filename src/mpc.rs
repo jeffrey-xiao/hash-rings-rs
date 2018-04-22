@@ -75,6 +75,7 @@ where T: 'a + Hash + Eq {
     /// let mut ring: Ring<&str> = Ring::new(2);
     /// ```
     pub fn new(hash_count: u64) -> Self {
+        assert!(hash_count > 0);
         Ring {
             nodes: TreapMap::new(),
             hash_count,
@@ -221,6 +222,12 @@ where T: Hash + Eq {
 #[cfg(test)]
 mod tests {
     use super::Ring;
+
+    #[test]
+    #[should_panic]
+    fn test_new_zero_hash_count() {
+        let ring: Ring<u32> = Ring::new(0);
+    }
 
     #[test]
     fn test_get_node() {
