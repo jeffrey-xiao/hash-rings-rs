@@ -34,7 +34,7 @@ where T: 'a + Hash + Ord {
 
 impl<'a, T> Ring<'a, T>
 where T: 'a + Hash + Ord {
-    /// Constructs a new, empty `Ring<T>`
+    /// Constructs a new, empty `Ring<T>`.
     ///
     /// # Examples
     /// ```
@@ -223,7 +223,7 @@ where
     T: 'a + Hash + Ord,
     U: 'a + Hash + Eq,
 {
-    /// Constructs a new, empty `Client<T, U>`
+    /// Constructs a new, empty `Client<T, U>`.
     ///
     /// # Examples
     /// ```

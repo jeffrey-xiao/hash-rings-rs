@@ -82,7 +82,7 @@ where T: 'a + Hash + Ord {
         }
     }
 
-    /// Constructs a new, empty `Ring<T>`
+    /// Constructs a new, empty `Ring<T>`.
     ///
     /// # Examples
     /// ```

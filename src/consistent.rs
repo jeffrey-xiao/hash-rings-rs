@@ -40,7 +40,7 @@ where T: 'a + Hash + Eq {
 
 impl<'a, T> Ring<'a, T>
 where T: 'a + Hash + Eq {
-    /// Constructs a new, empty `Ring<T>`
+    /// Constructs a new, empty `Ring<T>`.
     ///
     /// # Examples
     /// ```
@@ -55,7 +55,7 @@ where T: 'a + Hash + Eq {
         }
     }
 
-    fn get_next_node(&mut self, hash: &u64) -> Option<&T> {
+    fn get_next_node(&self, hash: &u64) -> Option<&T> {
         match self.nodes.ceil(hash) {
             Some(&hash) => Some(&*self.nodes[&hash]),
             None => {
@@ -136,16 +136,16 @@ where T: 'a + Hash + Eq {
     /// assert_eq!(ring.get_node(&"point-1"), &"node-1");
     /// ```
     pub fn get_node<U>(&mut self, point: &U) -> &T
-    where U: Hash + Eq {
+    where U: Hash {
         let hash = util::gen_hash(point);
         if let Some(node) = self.get_next_node(&hash) {
             &*node
         } else {
-            panic!("Error: empty ring");
+            panic!("Error: empty ring.");
         }
     }
 
-    fn contains_point(&self, index: u64) -> bool {
+    fn contains_node(&self, index: u64) -> bool {
         self.nodes.contains_key(&index)
     }
 
@@ -254,7 +254,7 @@ where
     T: 'a + Hash + Eq,
     U: 'a + Hash + Eq,
 {
-    /// Constructs a new, empty `Client<T, U>`
+    /// Constructs a new, empty `Client<T, U>`.
     ///
     /// # Examples
     /// ```
@@ -344,12 +344,12 @@ where
         self.ring.remove_node(id);
         for i in 0..replicas {
             let hash = util::combine_hash(util::gen_hash(id), util::gen_hash(&i));
-            if !self.ring.contains_point(hash) {
+            if !self.ring.contains_node(hash) {
                 if let Some((_, mut points)) = self.data.remove(&hash) {
                     if let Some((_, next_points)) = self.get_next_node(&hash) {
                         next_points.extend(points);
                     } else {
-                        panic!("Error: empty ring after deletion");
+                        panic!("Error: empty ring after deletion.");
                     }
                 }
             }
@@ -419,7 +419,7 @@ where
         if let Some((_, points)) = self.get_next_node(&hash) {
             points.insert(point);
         } else {
-            panic!("Error: empty ring");
+            panic!("Error: empty ring.");
         }
     }
 
@@ -442,7 +442,7 @@ where
         if let Some((_, points)) = self.get_next_node(&hash) {
             points.remove(point);
         } else {
-            panic!("Error: empty ring");
+            panic!("Error: empty ring.");
         }
     }
 

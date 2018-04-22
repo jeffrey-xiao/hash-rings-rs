@@ -13,7 +13,7 @@ use std::iter;
 /// ```
 /// use hash_rings::maglev::Ring;
 ///
-/// let mut ring = Ring::new(vec![&"node-1", &"node-2", &"node-3"]);
+/// let ring = Ring::new(vec![&"node-1", &"node-2", &"node-3"]);
 ///
 /// assert_eq!(ring.get_node(&"point-1"), &"node-3");
 /// assert_eq!(ring.nodes(), 3);
@@ -42,7 +42,7 @@ where T: 'a + Hash {
     /// ```
     /// use hash_rings::maglev::Ring;
     ///
-    /// let mut ring = Ring::new(vec![&"node-1", &"node-2", &"node-3"]);
+    /// let ring = Ring::new(vec![&"node-1", &"node-2", &"node-3"]);
     /// ```
     pub fn new(nodes: Vec<&'a T>) -> Self {
         let capacity_hint = nodes.len() * 100;
@@ -58,7 +58,7 @@ where T: 'a + Hash {
     /// ```
     /// use hash_rings::maglev::Ring;
     ///
-    /// let mut ring = Ring::with_capacity_hint(vec![&"node-1", &"node-2", &"node-3"], 100);
+    /// let ring = Ring::with_capacity_hint(vec![&"node-1", &"node-2", &"node-3"], 100);
     /// assert_eq!(ring.capacity(), 101);
     /// ```
     pub fn with_capacity_hint(nodes: Vec<&'a T>, capacity_hint: usize) -> Self {
@@ -122,7 +122,7 @@ where T: 'a + Hash {
     /// ```
     /// use hash_rings::maglev::Ring;
     ///
-    /// let mut ring = Ring::new(vec![&"node-1", &"node-2", &"node-3"]);
+    /// let ring = Ring::new(vec![&"node-1", &"node-2", &"node-3"]);
     /// assert_eq!(ring.nodes(), 3);
     /// ```
     pub fn nodes(&self) -> usize {
@@ -134,7 +134,7 @@ where T: 'a + Hash {
     /// ```
     /// use hash_rings::maglev::Ring;
     ///
-    /// let mut ring = Ring::new(vec![&"node-1", &"node-2", &"node-3"]);
+    /// let ring = Ring::new(vec![&"node-1", &"node-2", &"node-3"]);
     /// assert_eq!(ring.capacity(), 307);
     /// ```
     pub fn capacity(&self) -> usize {
@@ -145,13 +145,41 @@ where T: 'a + Hash {
     /// ```
     /// use hash_rings::maglev::Ring;
     ///
-    /// let mut ring = Ring::new(vec![&"node-1", &"node-2", &"node-3"]);
+    /// let ring = Ring::new(vec![&"node-1", &"node-2", &"node-3"]);
     /// assert_eq!(ring.get_node(&"point-1"), &"node-3");
     /// ```
     pub fn get_node<U>(&self, key: &U) -> &T
     where U: Hash {
         let index = Self::get_hash(self.hasher, key) % self.capacity();
         self.nodes[self.lookup[index]]
+    }
+
+    /// Returns an iterator over the ring. The iterator will yield the nodes in the ring.
+    ///
+    /// # Examples
+    /// ```
+    /// use hash_rings::maglev::Ring;
+    ///
+    /// let ring = Ring::new(vec![&"node-1", &"node-2", &"node-3"]);
+    ///
+    /// let mut iterator = ring.iter();
+    /// assert_eq!(iterator.next(), Some(&"node-1"));
+    /// assert_eq!(iterator.next(), Some(&"node-2"));
+    /// assert_eq!(iterator.next(), Some(&"node-3"));
+    /// assert_eq!(iterator.next(), None);
+    /// ```
+    pub fn iter(&'a self) -> Box<Iterator<Item = &'a T> + 'a> {
+        Box::new(self.nodes.iter().map(|node| *node))
+    }
+}
+
+impl<'a, T> IntoIterator for &'a Ring<'a, T>
+where T: Hash + Eq {
+    type Item = (&'a T);
+    type IntoIter = Box<Iterator<Item = &'a T> + 'a>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
     }
 }
 
@@ -183,5 +211,16 @@ mod tests {
 
         let ring = Ring::with_capacity_hint(vec![&0, &1], ring.capacity());
         assert_eq!(ring.capacity(), 307);
+    }
+
+    #[test]
+    fn test_iter() {
+        let ring = Ring::new(vec![&0, &1, &2]);
+
+        let mut iterator = ring.iter();
+        assert_eq!(iterator.next(), Some(&0));
+        assert_eq!(iterator.next(), Some(&1));
+        assert_eq!(iterator.next(), Some(&2));
+        assert_eq!(iterator.next(), None);
     }
 }
