@@ -251,6 +251,23 @@ mod tests {
     }
 
     #[test]
+    fn test_len() {
+        let mut ring = Ring::new(2);
+        ring.insert_node(&0);
+
+        assert_eq!(ring.len(), 1);
+    }
+
+    #[test]
+    fn test_is_empty() {
+        let mut ring = Ring::new(2);
+        assert!(ring.is_empty());
+
+        ring.insert_node(&0);
+        assert!(!ring.is_empty());
+    }
+
+    #[test]
     fn test_iter() {
         let mut ring = Ring::new(2);
         ring.insert_node(&0);
