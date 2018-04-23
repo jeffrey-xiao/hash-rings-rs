@@ -487,7 +487,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::Client;
+    use super::{Client, Ring};
 
     #[test]
     fn test_size_empty() {
@@ -546,9 +546,16 @@ mod tests {
         let mut client: Client<u32, u32> = Client::new();
         client.insert_node(&0, 1);
         client.insert_point(&0);
+        client.insert_point(&1);
+        client.insert_point(&2);
         client.insert_node(&1, 1);
         client.remove_node(&1);
-        assert_eq!(client.get_points(&0), [&0]);
+
+        let points = client.get_points(&0);
+
+        assert!(points.contains(&&0u32));
+        assert!(points.contains(&&1u32));
+        assert!(points.contains(&&2u32));
     }
 
     #[test]
@@ -589,5 +596,23 @@ mod tests {
         actual[0].1.sort();
         assert_eq!(actual[0].0, &0);
         assert_eq!(actual[0].1.as_slice(), [&1, &2, &3, &4, &5]);
+    }
+
+    #[test]
+    fn test_ring_len() {
+        let mut ring = Ring::new();
+
+        ring.insert_node(&0, 1);
+        assert_eq!(ring.len(), 1);
+    }
+
+    #[test]
+    fn test_ring_iter() {
+        let mut ring = Ring::new();
+
+        ring.insert_node(&0, 1);
+        let mut iterator = ring.iter();
+        assert_eq!(iterator.next(), Some((&0, 1)));
+        assert_eq!(iterator.next(), None);
     }
 }

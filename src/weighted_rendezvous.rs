@@ -302,8 +302,7 @@ where
                 let new_node = self.ring.get_node(point);
                 let point_hash = util::gen_hash(point);
                 let curr_hash = util::combine_hash(util::gen_hash(new_node), point_hash);
-                let curr_score =
-                    -self.ring.nodes[new_node] / (curr_hash as f64 / u64::max_value() as f64).ln();
+                let curr_score = -self.ring.nodes[new_node] / (curr_hash as f64 / u64::max_value() as f64).ln();
 
                 self.nodes.get_mut(new_node).unwrap().insert(point);
                 self.points.insert(point, (new_node, curr_score));
@@ -366,8 +365,7 @@ where
         let new_node = self.ring.get_node(point);
         let point_hash = util::gen_hash(point);
         let curr_hash = util::combine_hash(util::gen_hash(new_node), point_hash);
-        let curr_score =
-            -self.ring.nodes[new_node] / (curr_hash as f64 / u64::max_value() as f64).ln();
+        let curr_score = -self.ring.nodes[new_node] / (curr_hash as f64 / u64::max_value() as f64).ln();
 
         self.nodes.get_mut(new_node).unwrap().insert(point);
         self.points.insert(point, (new_node, curr_score));
@@ -472,7 +470,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::Client;
+    use super::{Client, Ring};
 
     #[test]
     fn test_size_empty() {
@@ -583,5 +581,23 @@ mod tests {
         actual[0].1.sort();
         assert_eq!(actual[0].0, &0);
         assert_eq!(actual[0].1.as_slice(), [&1, &2, &3, &4, &5]);
+    }
+
+    #[test]
+    fn test_ring_len() {
+        let mut ring = Ring::new();
+
+        ring.insert_node(&0, 1f64);
+        assert_eq!(ring.len(), 1);
+    }
+
+    #[test]
+    fn test_ring_iter() {
+        let mut ring: Ring<u32> = Ring::new();
+
+        ring.insert_node(&0, 1.0f64);
+        let mut iterator = ring.iter();
+        assert_eq!(iterator.next(), Some((&0, 1.0f64)));
+        assert_eq!(iterator.next(), None);
     }
 }

@@ -141,7 +141,7 @@ where T: 'a + Hash + Eq {
     /// ring.insert_node(&"node-1");
     /// assert_eq!(ring.get_node(&"point-1"), &"node-1");
     /// ```
-    pub fn get_node<U>(&mut self, point: &U) -> &T
+    pub fn get_node<U>(&self, point: &U) -> &T
     where U: Hash {
         let hashes = self.get_hashes(point);
         let hash = (0..self.hash_count)
@@ -227,6 +227,13 @@ mod tests {
     #[should_panic]
     fn test_new_zero_hash_count() {
         let _ring: Ring<u32> = Ring::new(0);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_get_node_empty_ring() {
+        let ring: Ring<u32> = Ring::new(2);
+        ring.get_node(&0);
     }
 
     #[test]

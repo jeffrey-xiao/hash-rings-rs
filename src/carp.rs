@@ -66,8 +66,7 @@ where T: 'a + Hash + Ord {
             if i == 0 {
                 res = (len * self.nodes[i].weight).powf(1f64 / len);
             } else {
-                res = (len - index) * (self.nodes[i].weight - self.nodes[i - 1].weight)
-                    / rolling_product;
+                res = (len - index) * (self.nodes[i].weight - self.nodes[i - 1].weight) / rolling_product;
                 res += self.nodes[i - 1].relative_weight.powf(len - index);
                 res = res.powf(1f64 / (len - index));
             }
@@ -265,12 +264,7 @@ mod tests {
     macro_rules! assert_approx_eq {
         ($a:expr, $b:expr) => {{
             let (a, b) = (&$a, &$b);
-            assert!(
-                (*a - *b).abs() < 1.0e-6,
-                "{} is not approximately equal to {}",
-                *a,
-                *b
-            );
+            assert!((*a - *b).abs() < 1.0e-6, "{} is not approximately equal to {}", *a, *b);
         }};
     }
 
@@ -349,10 +343,13 @@ mod tests {
 
     #[test]
     fn test_get_node() {
-        let ring = Ring::new(vec![Node::new(&0, 1.0)]);
+        let ring = Ring::new(vec![
+            Node::new(&0, 1.0),
+            Node::new(&1, 1.0),
+        ]);
 
         assert_eq!(ring.get_node(&0), &0);
-        assert_eq!(ring.get_node(&1), &0);
+        assert_eq!(ring.get_node(&1), &1);
         assert_eq!(ring.get_node(&2), &0);
     }
 

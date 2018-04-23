@@ -59,8 +59,7 @@ impl Ring {
         while j < i64::from(self.nodes) {
             i = j;
             h = h.wrapping_mul(2_862_933_555_777_941_757).wrapping_add(1);
-            j = (((i.wrapping_add(1)) as f64) * ((1i64 << 31) as f64)
-                / (((h >> 33).wrapping_add(1)) as f64)) as i64;
+            j = (((i.wrapping_add(1)) as f64) * ((1i64 << 31) as f64) / (((h >> 33).wrapping_add(1)) as f64)) as i64;
         }
         i as u32
     }
