@@ -45,7 +45,7 @@ where T: 'a + Hash {
     /// let ring = Ring::new(vec![&"node-1", &"node-2", &"node-3"]);
     /// ```
     pub fn new(nodes: Vec<&'a T>) -> Self {
-        assert!(nodes.len() > 0);
+        assert!(!nodes.is_empty());
         let capacity_hint = nodes.len() * 100;
         Ring::with_capacity_hint(nodes, capacity_hint)
     }
@@ -190,7 +190,7 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn test_new_zero_nodes() {
+    fn test_new_empty() {
         let ring: Ring<u32> = Ring::new(vec![]);
     }
 

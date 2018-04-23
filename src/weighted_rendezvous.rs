@@ -15,8 +15,8 @@ use util;
 ///
 /// let mut ring = Ring::new();
 ///
-/// ring.insert_node(&"node-1", 1f32);
-/// ring.insert_node(&"node-2", 3f32);
+/// ring.insert_node(&"node-1", 1f64);
+/// ring.insert_node(&"node-2", 3f64);
 ///
 /// ring.remove_node(&"node-1");
 ///
@@ -24,12 +24,12 @@ use util;
 /// assert_eq!(ring.len(), 1);
 ///
 /// let mut iterator = ring.iter();
-/// assert_eq!(iterator.next(), Some((&"node-2", 3f32)));
+/// assert_eq!(iterator.next(), Some((&"node-2", 3f64)));
 /// assert_eq!(iterator.next(), None);
 /// ```
 pub struct Ring<'a, T>
 where T: 'a + Hash + Ord {
-    nodes: HashMap<&'a T, f32>,
+    nodes: HashMap<&'a T, f64>,
 }
 
 impl<'a, T> Ring<'a, T>
@@ -61,10 +61,10 @@ where T: 'a + Hash + Ord {
     /// let mut ring: Ring<&str> = Ring::new();
     ///
     /// // "node-2" will receive three times more points than "node-1"
-    /// ring.insert_node(&"node-1", 1f32);
-    /// ring.insert_node(&"node-2", 3f32);
+    /// ring.insert_node(&"node-1", 1f64);
+    /// ring.insert_node(&"node-2", 3f64);
     /// ```
-    pub fn insert_node(&mut self, id: &'a T, weight: f32) {
+    pub fn insert_node(&mut self, id: &'a T, weight: f64) {
         self.nodes.insert(id, weight);
     }
 
@@ -76,8 +76,8 @@ where T: 'a + Hash + Ord {
     ///
     /// let mut ring: Ring<&str> = Ring::new();
     ///
-    /// ring.insert_node(&"node-1", 1f32);
-    /// ring.insert_node(&"node-2", 1f32);
+    /// ring.insert_node(&"node-1", 1f64);
+    /// ring.insert_node(&"node-2", 1f64);
     /// ring.remove_node(&"node-2");
     /// ```
     pub fn remove_node(&mut self, id: &T) {
@@ -95,7 +95,7 @@ where T: 'a + Hash + Ord {
     ///
     /// let mut ring: Ring<&str> = Ring::new();
     ///
-    /// ring.insert_node(&"node-1", 1f32);
+    /// ring.insert_node(&"node-1", 1f64);
     /// assert_eq!(ring.get_node(&"point-1"), &"node-1");
     /// ```
     pub fn get_node<U>(&self, key: &U) -> &'a T
@@ -106,7 +106,7 @@ where T: 'a + Hash + Ord {
             .map(|entry| {
                 let hash = util::combine_hash(util::gen_hash(entry.0), point_hash);
                 (
-                    -entry.1 / (hash as f32 / u64::max_value() as f32).ln(),
+                    -entry.1 / (hash as f64 / u64::max_value() as f64).ln(),
                     entry.0,
                 )
             })
@@ -129,7 +129,7 @@ where T: 'a + Hash + Ord {
     ///
     /// let mut ring: Ring<&str> = Ring::new();
     ///
-    /// ring.insert_node(&"node-1", 3f32);
+    /// ring.insert_node(&"node-1", 3f64);
     /// assert_eq!(ring.len(), 1);
     /// ```
     pub fn len(&self) -> usize {
@@ -145,7 +145,7 @@ where T: 'a + Hash + Ord {
     /// let mut ring: Ring<&str> = Ring::new();
     ///
     /// assert!(ring.is_empty());
-    /// ring.insert_node(&"node-1", 3f32);
+    /// ring.insert_node(&"node-1", 3f64);
     /// assert!(!ring.is_empty());
     /// ```
     pub fn is_empty(&self) -> bool {
@@ -160,13 +160,13 @@ where T: 'a + Hash + Ord {
     /// use hash_rings::weighted_rendezvous::Ring;
     ///
     /// let mut ring = Ring::new();
-    /// ring.insert_node(&"node-1", 1f32);
+    /// ring.insert_node(&"node-1", 1f64);
     ///
     /// let mut iterator = ring.iter();
-    /// assert_eq!(iterator.next(), Some((&"node-1", 1f32)));
+    /// assert_eq!(iterator.next(), Some((&"node-1", 1f64)));
     /// assert_eq!(iterator.next(), None);
     /// ```
-    pub fn iter(&'a self) -> Box<Iterator<Item = (&'a T, f32)> + 'a> {
+    pub fn iter(&'a self) -> Box<Iterator<Item = (&'a T, f64)> + 'a> {
         Box::new(self.nodes.iter().map(|node_entry| {
             let (id, weight) = node_entry;
             (&**id, *weight)
@@ -176,8 +176,8 @@ where T: 'a + Hash + Ord {
 
 impl<'a, T> IntoIterator for &'a Ring<'a, T>
 where T: Hash + Ord {
-    type Item = (&'a T, f32);
-    type IntoIter = Box<Iterator<Item = (&'a T, f32)> + 'a>;
+    type Item = (&'a T, f64);
+    type IntoIter = Box<Iterator<Item = (&'a T, f64)> + 'a>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.iter()
@@ -198,7 +198,7 @@ where T: 'a + Hash + Ord {
 /// use hash_rings::weighted_rendezvous::Client;
 ///
 /// let mut client = Client::new();
-/// client.insert_node(&"node-1", 3f32);
+/// client.insert_node(&"node-1", 3f64);
 /// client.insert_point(&"point-1");
 /// client.insert_point(&"point-2");
 ///
@@ -215,7 +215,7 @@ where
 {
     ring: Ring<'a, T>,
     nodes: HashMap<&'a T, HashSet<&'a U>>,
-    points: HashMap<&'a U, (&'a T, f32)>,
+    points: HashMap<&'a U, (&'a T, f64)>,
 }
 
 impl<'a, T, U> Client<'a, T, U>
@@ -252,10 +252,10 @@ where
     /// let mut client: Client<&str, &str> = Client::new();
     ///
     /// // "node-2" will receive three times more points than "node-1"
-    /// client.insert_node(&"node-1", 1f32);
-    /// client.insert_node(&"node-2", 3f32);
+    /// client.insert_node(&"node-1", 1f64);
+    /// client.insert_node(&"node-2", 3f64);
     /// ```
-    pub fn insert_node(&mut self, id: &'a T, weight: f32) {
+    pub fn insert_node(&mut self, id: &'a T, weight: f64) {
         self.ring.insert_node(id, weight);
 
         let mut new_points = HashSet::new();
@@ -264,7 +264,7 @@ where
             let (ref mut original_node, ref mut original_score) = *node_entry;
             let point_hash = util::gen_hash(point);
             let curr_hash = util::combine_hash(util::gen_hash(id), point_hash);
-            let curr_score = -weight / (curr_hash as f32 / u64::max_value() as f32).ln();
+            let curr_score = -weight / (curr_hash as f64 / u64::max_value() as f64).ln();
 
             if curr_score > *original_score {
                 self.nodes.get_mut(original_node).unwrap().remove(point);
@@ -288,8 +288,8 @@ where
     ///
     /// let mut client: Client<&str, &str> = Client::new();
     ///
-    /// client.insert_node(&"node-1", 1f32);
-    /// client.insert_node(&"node-2", 1f32);
+    /// client.insert_node(&"node-1", 1f64);
+    /// client.insert_node(&"node-2", 1f64);
     /// client.remove_node(&"node-1");
     /// ```
     pub fn remove_node(&mut self, id: &T) {
@@ -303,7 +303,7 @@ where
                 let point_hash = util::gen_hash(point);
                 let curr_hash = util::combine_hash(util::gen_hash(new_node), point_hash);
                 let curr_score =
-                    -self.ring.nodes[new_node] / (curr_hash as f32 / u64::max_value() as f32).ln();
+                    -self.ring.nodes[new_node] / (curr_hash as f64 / u64::max_value() as f64).ln();
 
                 self.nodes.get_mut(new_node).unwrap().insert(point);
                 self.points.insert(point, (new_node, curr_score));
@@ -322,7 +322,7 @@ where
     ///
     /// let mut client: Client<&str, &str> = Client::new();
     ///
-    /// client.insert_node(&"node-1", 1f32);
+    /// client.insert_node(&"node-1", 1f64);
     /// client.insert_point(&"point-1");
     /// assert_eq!(client.get_points(&"node-1"), [&"point-1"]);
     /// ```
@@ -341,7 +341,7 @@ where
     ///
     /// let mut client: Client<&str, &str> = Client::new();
     ///
-    /// client.insert_node(&"node-1", 1f32);
+    /// client.insert_node(&"node-1", 1f64);
     /// client.insert_point(&"point-1");
     /// assert_eq!(client.get_node(&"point-1"), &"node-1");
     /// ```
@@ -359,7 +359,7 @@ where
     /// use hash_rings::weighted_rendezvous::Client;
     ///
     /// let mut client = Client::new();
-    /// client.insert_node(&"node-1", 1f32);
+    /// client.insert_node(&"node-1", 1f64);
     /// client.insert_point(&"point-1");
     /// ```
     pub fn insert_point(&mut self, point: &'a U) {
@@ -367,7 +367,7 @@ where
         let point_hash = util::gen_hash(point);
         let curr_hash = util::combine_hash(util::gen_hash(new_node), point_hash);
         let curr_score =
-            -self.ring.nodes[new_node] / (curr_hash as f32 / u64::max_value() as f32).ln();
+            -self.ring.nodes[new_node] / (curr_hash as f64 / u64::max_value() as f64).ln();
 
         self.nodes.get_mut(new_node).unwrap().insert(point);
         self.points.insert(point, (new_node, curr_score));
@@ -383,7 +383,7 @@ where
     /// use hash_rings::weighted_rendezvous::Client;
     ///
     /// let mut client = Client::new();
-    /// client.insert_node(&"node-1", 1f32);
+    /// client.insert_node(&"node-1", 1f64);
     /// client.insert_point(&"point-1");
     /// client.remove_point(&"point-1");
     /// ```
@@ -401,7 +401,7 @@ where
     ///
     /// let mut client: Client<&str, &str> = Client::new();
     ///
-    /// client.insert_node(&"node-1", 3f32);
+    /// client.insert_node(&"node-1", 3f64);
     /// assert_eq!(client.len(), 1);
     /// ```
     pub fn len(&self) -> usize {
@@ -417,7 +417,7 @@ where
     /// let mut client: Client<&str, &str> = Client::new();
     ///
     /// assert!(client.is_empty());
-    /// client.insert_node(&"node-1", 3f32);
+    /// client.insert_node(&"node-1", 3f64);
     /// assert!(!client.is_empty());
     /// ```
     pub fn is_empty(&self) -> bool {
@@ -432,7 +432,7 @@ where
     /// use hash_rings::weighted_rendezvous::Client;
     ///
     /// let mut client = Client::new();
-    /// client.insert_node(&"node-1", 1f32);
+    /// client.insert_node(&"node-1", 1f64);
     /// client.insert_point(&"point-1");
     ///
     /// let mut iterator = client.iter();
@@ -485,7 +485,7 @@ mod tests {
     #[should_panic]
     fn test_panic_remove_node_empty_client() {
         let mut client: Client<u32, u32> = Client::new();
-        client.insert_node(&0, 1f32);
+        client.insert_node(&0, 1f64);
         client.remove_node(&0);
     }
 
@@ -520,20 +520,20 @@ mod tests {
     #[test]
     fn test_insert_node() {
         let mut client: Client<u32, u32> = Client::new();
-        client.insert_node(&0, 0f32);
+        client.insert_node(&0, 0f64);
         client.insert_point(&0);
-        client.insert_node(&1, 1f32);
+        client.insert_node(&1, 1f64);
         assert_eq!(client.get_points(&1).as_slice(), [&0u32]);
     }
 
     #[test]
     fn test_remove_node() {
         let mut client: Client<u32, u32> = Client::new();
-        client.insert_node(&0, 1f32);
+        client.insert_node(&0, 1f64);
         client.insert_point(&0);
         client.insert_point(&1);
         client.insert_point(&2);
-        client.insert_node(&1, 1f32);
+        client.insert_node(&1, 1f64);
         client.remove_node(&1);
 
         let points = client.get_points(&0);
@@ -546,16 +546,16 @@ mod tests {
     #[test]
     fn test_get_node() {
         let mut client: Client<u32, u32> = Client::new();
-        client.insert_node(&0, 3f32);
-        client.insert_node(&1, 0f32);
-        client.insert_node(&2, 0f32);
+        client.insert_node(&0, 3f64);
+        client.insert_node(&1, 0f64);
+        client.insert_node(&2, 0f64);
         assert_eq!(client.get_node(&0), &0);
     }
 
     #[test]
     fn test_insert_point() {
         let mut client: Client<u32, u32> = Client::new();
-        client.insert_node(&0, 3f32);
+        client.insert_node(&0, 3f64);
         client.insert_point(&0);
         assert_eq!(client.get_points(&0).as_slice(), [&0u32]);
     }
@@ -563,7 +563,7 @@ mod tests {
     #[test]
     fn test_remove_point() {
         let mut client: Client<u32, u32> = Client::new();
-        client.insert_node(&0, 3f32);
+        client.insert_node(&0, 3f64);
         client.insert_point(&0);
         client.remove_point(&0);
         let expected: [&u32; 0] = [];
@@ -573,7 +573,7 @@ mod tests {
     #[test]
     fn test_iter() {
         let mut client: Client<u32, u32> = Client::new();
-        client.insert_node(&0, 3f32);
+        client.insert_node(&0, 3f64);
         client.insert_point(&1);
         client.insert_point(&2);
         client.insert_point(&3);
