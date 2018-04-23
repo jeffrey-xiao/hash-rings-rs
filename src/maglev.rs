@@ -191,7 +191,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_new_empty() {
-        let ring: Ring<u32> = Ring::new(vec![]);
+        let _ring: Ring<u32> = Ring::new(vec![]);
     }
 
     #[test]

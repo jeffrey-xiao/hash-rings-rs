@@ -226,7 +226,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_new_zero_hash_count() {
-        let ring: Ring<u32> = Ring::new(0);
+        let _ring: Ring<u32> = Ring::new(0);
     }
 
     #[test]

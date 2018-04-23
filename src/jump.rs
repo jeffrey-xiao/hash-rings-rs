@@ -17,7 +17,7 @@ use util;
 ///
 /// let ring = Ring::new(100);
 ///
-/// assert_eq!(ring.get_node(&"foo"), 8);
+/// assert_eq!(ring.get_node(&"foo"), 3);
 /// assert_eq!(ring.nodes(), 100);
 /// ```
 pub struct Ring {
@@ -48,7 +48,7 @@ impl Ring {
     /// use hash_rings::jump::Ring;
     ///
     /// let ring = Ring::new(100);
-    /// assert_eq!(ring.get_node(&"foo"), 8);
+    /// assert_eq!(ring.get_node(&"foo"), 3);
     /// ```
     pub fn get_node<T>(&self, key: &T) -> u32
     where T: Hash {
@@ -86,13 +86,13 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_new_zero_nodes() {
-        let ring = Ring::new(0);
+        let _ring = Ring::new(0);
     }
 
     #[test]
     fn test_get_node() {
         let ring = Ring::new(100);
-        assert_eq!(ring.get_node(&"foo"), 8);
+        assert_eq!(ring.get_node(&"foo"), 3);
     }
 
     #[test]

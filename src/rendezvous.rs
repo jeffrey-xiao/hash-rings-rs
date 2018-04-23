@@ -535,10 +535,10 @@ mod tests {
     #[test]
     fn test_insert_node() {
         let mut client: Client<u32, u32> = Client::new();
-        client.insert_node(&0, 1);
-        client.insert_point(&0);
         client.insert_node(&1, 1);
-        assert_eq!(client.get_points(&1).as_slice(), [&0u32]);
+        client.insert_point(&0);
+        client.insert_node(&0, 1);
+        assert_eq!(client.get_points(&0).as_slice(), [&0u32]);
     }
 
     #[test]
