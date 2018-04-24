@@ -12,13 +12,14 @@ use hash_rings::{
 };
 use rand::{Rng, XorShiftRng};
 use std::collections::HashMap;
+use std::time::{Duration, Instant};
 
 const HASH_COUNT: u64 = 21;
 const REPLICAS: u64 = 1611;
 const ITEMS: u64 = 100_000;
 const NODES: u64 = 10;
 
-fn print_statistic(id: u64, expected: f64, actual: f64) {
+fn print_node_statistic(id: u64, expected: f64, actual: f64) {
     let error = (expected - actual) / actual;
     println!(
         "{:020} - Expected: {:.6} | Actual: {:.6} | Error: {:9.6}",
@@ -29,8 +30,23 @@ fn print_statistic(id: u64, expected: f64, actual: f64) {
     );
 }
 
-fn test_carp_distribution() {
-    println!("\nTesting carp distribution");
+fn print_bench_statistic(duration: Duration) {
+    let total_time = duration.as_secs() as f64 * 1e9 + duration.subsec_nanos() as f64;
+    let ns_per_operation = total_time / ITEMS as f64;
+    let operations_per_sec = 1e9 / ns_per_operation;
+    println!("");
+    println!("Total elapsed time:         {:>10.3} ms", total_time / 1e6);
+    println!("Milliseconds per operation: {:>10.3} ns", ns_per_operation);
+    println!("Operations per second:      {:>10.3} op/ms", operations_per_sec);
+    println!("");
+}
+
+fn bench_carp() {
+    println!(
+        "\nBenching carp hashing ({} nodes, {} items)",
+        NODES,
+        ITEMS,
+    );
     let mut rng = XorShiftRng::new_unseeded();
 
     let mut occ_map = HashMap::new();
@@ -53,22 +69,29 @@ fn test_carp_distribution() {
             .collect()
     );
 
+    let start = Instant::now();
     for _ in 0..ITEMS {
         let id = ring.get_node(&rng.next_u64());
         *occ_map.get_mut(id).unwrap() += 1.0;
     }
 
     for node in &nodes {
-        print_statistic(
+        print_node_statistic(
             node.0,
             node.1 / total_weight,
             occ_map[&node.0] / ITEMS as f64,
         );
     }
+    print_bench_statistic(start.elapsed());
 }
 
-fn test_consistent_distribution() {
-    println!("\nTesting consistent distribution");
+fn bench_consistent() {
+    println!(
+        "\nBenching consistent hashing ({} nodes, {} replicas, {} items)",
+        NODES,
+        REPLICAS,
+        ITEMS,
+    );
     let mut rng = XorShiftRng::new_unseeded();
 
     let mut occ_map = HashMap::new();
@@ -86,22 +109,28 @@ fn test_consistent_distribution() {
         ring.insert_node(node, REPLICAS as usize);
     }
 
+    let start = Instant::now();
     for _ in 0..ITEMS {
         let id = ring.get_node(&rng.next_u64());
         *occ_map.get_mut(id).unwrap() += 1.0;
     }
 
     for node in &nodes {
-        print_statistic(
+        print_node_statistic(
             *node,
             REPLICAS as f64 / total_replicas as f64,
             occ_map[&node] / ITEMS as f64,
         );
     }
+    print_bench_statistic(start.elapsed());
 }
 
-fn test_jump_distribution() {
-    println!("\nTesting jump distribution");
+fn bench_jump() {
+    println!(
+        "\nBenching jump hashing ({} nodes, {} items)",
+        NODES,
+        ITEMS,
+    );
     let mut rng = XorShiftRng::new_unseeded();
 
     let mut occ_map = HashMap::new();
@@ -111,22 +140,28 @@ fn test_jump_distribution() {
         occ_map.insert(i, 0f64);
     }
 
+    let start = Instant::now();
     for _ in 0..ITEMS {
         let id = ring.get_node(&rng.next_u64());
         *occ_map.get_mut(&id).unwrap() += 1.0;
     }
 
     for i in 0..NODES as u32 {
-        print_statistic(
+        print_node_statistic(
             u64::from(i),
             1.0 / NODES as f64,
             occ_map[&i] / ITEMS as f64,
         );
     }
+    print_bench_statistic(start.elapsed());
 }
 
-fn test_maglev_distribution() {
-    println!("\nTesting maglev distribution");
+fn bench_maglev() {
+    println!(
+        "\nBenching maglev hashing ({} nodes, {} items)",
+        NODES,
+        ITEMS,
+    );
     let mut rng = XorShiftRng::new_unseeded();
 
     let mut occ_map = HashMap::new();
@@ -141,22 +176,29 @@ fn test_maglev_distribution() {
 
     let ring = maglev::Ring::new(nodes.iter().collect());
 
+    let start = Instant::now();
     for _ in 0..ITEMS {
         let id = ring.get_node(&rng.next_u64());
         *occ_map.get_mut(id).unwrap() += 1;
     }
 
     for node in &nodes {
-        print_statistic(
+        print_node_statistic(
             *node,
             1.0 / NODES as f64,
             f64::from(occ_map[&node]) / ITEMS as f64,
         );
     }
+    print_bench_statistic(start.elapsed());
 }
 
-fn test_mpc_distribution() {
-    println!("\nTesting mpc distribution");
+fn bench_mpc() {
+    println!(
+        "\nBenching mpc hashing ({} nodes, {} probes, {} items)",
+        NODES,
+        HASH_COUNT,
+        ITEMS,
+    );
     let mut rng = XorShiftRng::new_unseeded();
 
     let mut occ_map = HashMap::new();
@@ -173,22 +215,28 @@ fn test_mpc_distribution() {
         ring.insert_node(node);
     }
 
+    let start = Instant::now();
     for _ in 0..ITEMS {
         let id = ring.get_node(&rng.next_u64());
         *occ_map.get_mut(id).unwrap() += 1;
     }
 
     for node in &nodes {
-        print_statistic(
+        print_node_statistic(
             *node,
             1.0 / NODES as f64,
             f64::from(occ_map[&node]) / ITEMS as f64,
         );
     }
+    print_bench_statistic(start.elapsed());
 }
 
-fn test_rendezvous_distribution() {
-    println!("\nTesting rendezvous distribution");
+fn bench_rendezvous() {
+    println!(
+        "\nBenching rendezvous hashing ({} nodes, {} items)",
+        NODES,
+        ITEMS,
+    );
     let mut rng = XorShiftRng::new_unseeded();
 
     let mut occ_map = HashMap::new();
@@ -205,22 +253,28 @@ fn test_rendezvous_distribution() {
         ring.insert_node(node, 1);
     }
 
+    let start = Instant::now();
     for _ in 0..ITEMS {
         let id = ring.get_node(&rng.next_u64());
         *occ_map.get_mut(id).unwrap() += 1.0;
     }
 
     for node in &nodes {
-        print_statistic(
+        print_node_statistic(
             *node,
             1.0 / NODES as f64,
             occ_map[&node] / ITEMS as f64,
         );
     }
+    print_bench_statistic(start.elapsed());
 }
 
-fn test_weighted_rendezvous_distribution() {
-    println!("\nTesting weighted rendezvous distribution");
+fn bench_weighted_rendezvous() {
+    println!(
+        "\nBenching weighted rendezvous hashing ({} nodes, {} items)",
+        NODES,
+        ITEMS,
+    );
     let mut rng = XorShiftRng::new_unseeded();
 
     let mut occ_map = HashMap::new();
@@ -241,26 +295,28 @@ fn test_weighted_rendezvous_distribution() {
         ring.insert_node(&node.0, node.1);
     }
 
+    let start = Instant::now();
     for _ in 0..ITEMS {
         let id = ring.get_node(&rng.next_u64());
         *occ_map.get_mut(id).unwrap() += 1.0;
     }
 
     for node in &nodes {
-        print_statistic(
+        print_node_statistic(
             node.0,
             node.1 as f64 / total_weight as f64,
             occ_map[&node.0] / ITEMS as f64,
         );
     }
+    print_bench_statistic(start.elapsed());
 }
 
 fn main() {
-    test_carp_distribution();
-    test_consistent_distribution();
-    test_jump_distribution();
-    test_maglev_distribution();
-    test_mpc_distribution();
-    test_rendezvous_distribution();
-    test_weighted_rendezvous_distribution();
+    bench_carp();
+    bench_consistent();
+    bench_jump();
+    bench_maglev();
+    bench_mpc();
+    bench_rendezvous();
+    bench_weighted_rendezvous();
 }
