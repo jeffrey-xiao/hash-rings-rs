@@ -58,7 +58,7 @@ where T: 'a + Hash + Ord {
 impl<'a, T> Ring<'a, T>
 where T: 'a + Hash + Ord {
     fn rebalance(&mut self) {
-        let mut rolling_product = 1f64;
+        let mut product = 1f64;
         let len = self.nodes.len() as f64;
         for i in 0..self.nodes.len() {
             let index = i as f64;
@@ -66,12 +66,12 @@ where T: 'a + Hash + Ord {
             if i == 0 {
                 res = (len * self.nodes[i].weight).powf(1f64 / len);
             } else {
-                res = (len - index) * (self.nodes[i].weight - self.nodes[i - 1].weight) / rolling_product;
+                res = (len - index) * (self.nodes[i].weight - self.nodes[i - 1].weight) / product;
                 res += self.nodes[i - 1].relative_weight.powf(len - index);
                 res = res.powf(1f64 / (len - index));
             }
 
-            rolling_product *= res;
+            product *= res;
             self.nodes[i].relative_weight = res;
         }
         if let Some(max_relative_weight) = self.nodes.last().map(|node| node.relative_weight) {

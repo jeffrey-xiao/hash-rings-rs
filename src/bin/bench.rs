@@ -66,7 +66,7 @@ fn bench_carp() {
         nodes
             .iter()
             .map(|ref node| carp::Node::new(&node.0, node.1))
-            .collect()
+            .collect(),
     );
 
     let start = Instant::now();

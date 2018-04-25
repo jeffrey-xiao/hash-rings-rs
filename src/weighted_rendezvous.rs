@@ -302,7 +302,8 @@ where
                 let new_node = self.ring.get_node(point);
                 let point_hash = util::gen_hash(point);
                 let curr_hash = util::combine_hash(util::gen_hash(new_node), point_hash);
-                let curr_score = -self.ring.nodes[new_node] / (curr_hash as f64 / u64::max_value() as f64).ln();
+                let coefficient = -1.0 / (curr_hash as f64 / u64::max_value() as f64).ln()
+                let curr_score = self.ring.nodes[new_node] / coefficient;
 
                 self.nodes.get_mut(new_node).unwrap().insert(point);
                 self.points.insert(point, (new_node, curr_score));
@@ -365,7 +366,8 @@ where
         let new_node = self.ring.get_node(point);
         let point_hash = util::gen_hash(point);
         let curr_hash = util::combine_hash(util::gen_hash(new_node), point_hash);
-        let curr_score = -self.ring.nodes[new_node] / (curr_hash as f64 / u64::max_value() as f64).ln();
+        let coefficient = -1.0 / (curr_hash as f64 / u64::max_value() as f64).ln()
+        let curr_score = self.ring.nodes[new_node] / coefficient;
 
         self.nodes.get_mut(new_node).unwrap().insert(point);
         self.points.insert(point, (new_node, curr_score));
