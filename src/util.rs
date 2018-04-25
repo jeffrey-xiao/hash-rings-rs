@@ -2,7 +2,9 @@ use siphasher::sip::SipHasher;
 use std::hash::{Hash, Hasher};
 
 pub fn gen_hash<T>(value: &T) -> u64
-where T: Hash {
+where
+    T: Hash,
+{
     let mut hasher = SipHasher::new();
     value.hash(&mut hasher);
     hasher.finish()

@@ -20,14 +20,18 @@ use std::iter;
 /// assert_eq!(ring.capacity(), 307);
 /// ```
 pub struct Ring<'a, T>
-where T: 'a + Hash {
+where
+    T: 'a + Hash,
+{
     nodes: Vec<&'a T>,
     lookup: Vec<usize>,
     hasher: SipHasher,
 }
 
 impl<'a, T> Ring<'a, T>
-where T: 'a + Hash {
+where
+    T: 'a + Hash,
+{
     fn get_hashers() -> [SipHasher; 2] {
         let mut rng = XorShiftRng::new_unseeded();
         [
@@ -73,7 +77,9 @@ where T: 'a + Hash {
     }
 
     fn get_hash<U>(hasher: SipHasher, key: &U) -> usize
-    where U: Hash {
+    where
+        U: Hash,
+    {
         let mut sip = hasher;
         key.hash(&mut sip);
         sip.finish() as usize
@@ -150,7 +156,9 @@ where T: 'a + Hash {
     /// assert_eq!(ring.get_node(&"point-1"), &"node-3");
     /// ```
     pub fn get_node<U>(&self, key: &U) -> &T
-    where U: Hash {
+    where
+        U: Hash,
+    {
         let index = Self::get_hash(self.hasher, key) % self.capacity();
         self.nodes[self.lookup[index]]
     }
@@ -175,7 +183,9 @@ where T: 'a + Hash {
 }
 
 impl<'a, T> IntoIterator for &'a Ring<'a, T>
-where T: Hash + Eq {
+where
+    T: Hash + Eq,
+{
     type Item = (&'a T);
     type IntoIter = Box<Iterator<Item = &'a T> + 'a>;
 

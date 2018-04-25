@@ -28,12 +28,16 @@ use util;
 /// assert_eq!(iterator.next(), None);
 /// ```
 pub struct Ring<'a, T>
-where T: 'a + Hash + Ord {
+where
+    T: 'a + Hash + Ord,
+{
     nodes: HashMap<&'a T, f64>,
 }
 
 impl<'a, T> Ring<'a, T>
-where T: 'a + Hash + Ord {
+where
+    T: 'a + Hash + Ord,
+{
     /// Constructs a new, empty `Ring<T>`.
     ///
     /// # Examples
@@ -99,7 +103,9 @@ where T: 'a + Hash + Ord {
     /// assert_eq!(ring.get_node(&"point-1"), &"node-1");
     /// ```
     pub fn get_node<U>(&self, key: &U) -> &'a T
-    where U: Hash + Eq {
+    where
+        U: Hash + Eq,
+    {
         let point_hash = util::gen_hash(key);
         self.nodes
             .iter()
@@ -175,7 +181,9 @@ where T: 'a + Hash + Ord {
 }
 
 impl<'a, T> IntoIterator for &'a Ring<'a, T>
-where T: Hash + Ord {
+where
+    T: Hash + Ord,
+{
     type Item = (&'a T, f64);
     type IntoIter = Box<Iterator<Item = (&'a T, f64)> + 'a>;
 
@@ -185,7 +193,9 @@ where T: Hash + Ord {
 }
 
 impl<'a, T> Default for Ring<'a, T>
-where T: 'a + Hash + Ord {
+where
+    T: 'a + Hash + Ord,
+{
     fn default() -> Self {
         Self::new()
     }
@@ -302,7 +312,7 @@ where
                 let new_node = self.ring.get_node(point);
                 let point_hash = util::gen_hash(point);
                 let curr_hash = util::combine_hash(util::gen_hash(new_node), point_hash);
-                let coefficient = -1.0 / (curr_hash as f64 / u64::max_value() as f64).ln()
+                let coefficient = -1.0 / (curr_hash as f64 / u64::max_value() as f64).ln();
                 let curr_score = self.ring.nodes[new_node] / coefficient;
 
                 self.nodes.get_mut(new_node).unwrap().insert(point);
@@ -366,7 +376,7 @@ where
         let new_node = self.ring.get_node(point);
         let point_hash = util::gen_hash(point);
         let curr_hash = util::combine_hash(util::gen_hash(new_node), point_hash);
-        let coefficient = -1.0 / (curr_hash as f64 / u64::max_value() as f64).ln()
+        let coefficient = -1.0 / (curr_hash as f64 / u64::max_value() as f64).ln();
         let curr_score = self.ring.nodes[new_node] / coefficient;
 
         self.nodes.get_mut(new_node).unwrap().insert(point);

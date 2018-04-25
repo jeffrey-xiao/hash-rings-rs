@@ -8,7 +8,9 @@ use util;
 /// node with a weight of 3 will receive approximately three times more points than a node with a
 /// weight of 1.
 pub struct Node<'a, T>
-where T: 'a + Hash + Ord {
+where
+    T: 'a + Hash + Ord,
+{
     id: &'a T,
     hash: u64,
     weight: f64,
@@ -16,7 +18,9 @@ where T: 'a + Hash + Ord {
 }
 
 impl<'a, T> Node<'a, T>
-where T: 'a + Hash + Ord {
+where
+    T: 'a + Hash + Ord,
+{
     pub fn new(id: &'a T, weight: f64) -> Self {
         Node {
             id,
@@ -51,12 +55,16 @@ where T: 'a + Hash + Ord {
 /// assert_eq!(iterator.next(), None);
 /// ```
 pub struct Ring<'a, T>
-where T: 'a + Hash + Ord {
+where
+    T: 'a + Hash + Ord,
+{
     nodes: Vec<Node<'a, T>>,
 }
 
 impl<'a, T> Ring<'a, T>
-where T: 'a + Hash + Ord {
+where
+    T: 'a + Hash + Ord,
+{
     fn rebalance(&mut self) {
         let mut product = 1f64;
         let len = self.nodes.len() as f64;
@@ -170,7 +178,9 @@ where T: 'a + Hash + Ord {
     /// assert_eq!(ring.get_node(&"point-1"), &"node-1");
     /// ```
     pub fn get_node<U>(&self, point: &U) -> &'a T
-    where U: Hash + Eq {
+    where
+        U: Hash + Eq,
+    {
         let point_hash = util::gen_hash(point);
         self.nodes
             .iter()
@@ -249,7 +259,9 @@ where T: 'a + Hash + Ord {
 }
 
 impl<'a, T> IntoIterator for &'a Ring<'a, T>
-where T: Hash + Ord {
+where
+    T: Hash + Ord,
+{
     type Item = (&'a T, f64);
     type IntoIter = Box<Iterator<Item = (&'a T, f64)> + 'a>;
 

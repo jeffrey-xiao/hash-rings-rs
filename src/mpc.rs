@@ -31,14 +31,18 @@ const PRIME: u64 = 0xFFFF_FFFF_FFFF_FFC5;
 /// assert_eq!(iterator.next(), None);
 /// ```
 pub struct Ring<'a, T>
-where T: 'a + Hash + Eq {
+where
+    T: 'a + Hash + Eq,
+{
     nodes: TreapMap<u64, &'a T>,
     hash_count: u64,
     hashers: [SipHasher; 2],
 }
 
-impl <'a, T> Ring<'a, T>
-where T: 'a + Hash + Eq {
+impl<'a, T> Ring<'a, T>
+where
+    T: 'a + Hash + Eq,
+{
     fn get_hashers() -> [SipHasher; 2] {
         let mut rng = XorShiftRng::new_unseeded();
         [
@@ -48,7 +52,9 @@ where T: 'a + Hash + Eq {
     }
 
     fn get_hashes<U>(&self, item: &U) -> [u64; 2]
-    where U: Hash {
+    where
+        U: Hash,
+    {
         let mut ret = [0; 2];
         for (index, hash) in ret.iter_mut().enumerate() {
             let mut sip = self.hashers[index];
@@ -142,16 +148,15 @@ where T: 'a + Hash + Eq {
     /// assert_eq!(ring.get_node(&"point-1"), &"node-1");
     /// ```
     pub fn get_node<U>(&self, point: &U) -> &T
-    where U: Hash {
+    where
+        U: Hash,
+    {
         let hashes = self.get_hashes(point);
         let hash = (0..self.hash_count)
             .map(|i| {
                 let hash = hashes[0].wrapping_add((i as u64).wrapping_mul(hashes[1]) % PRIME);
                 let next_hash = self.get_next_hash(&hash);
-                (
-                    Self::get_distance(hash, next_hash),
-                    next_hash,
-                )
+                (Self::get_distance(hash, next_hash), next_hash)
             })
             .min()
             .expect("Error: expected positive hash count.");
@@ -210,7 +215,9 @@ where T: 'a + Hash + Eq {
 }
 
 impl<'a, T> IntoIterator for &'a Ring<'a, T>
-where T: Hash + Eq {
+where
+    T: Hash + Eq,
+{
     type Item = (&'a T);
     type IntoIter = Box<Iterator<Item = &'a T> + 'a>;
 

@@ -33,13 +33,17 @@ use util;
 /// assert_eq!(iterator.next(), None);
 /// ```
 pub struct Ring<'a, T>
-where T: 'a + Hash + Eq {
+where
+    T: 'a + Hash + Eq,
+{
     nodes: TreapMap<u64, &'a T>,
     replicas: HashMap<&'a T, usize>,
 }
 
 impl<'a, T> Ring<'a, T>
-where T: 'a + Hash + Eq {
+where
+    T: 'a + Hash + Eq,
+{
     /// Constructs a new, empty `Ring<T>`.
     ///
     /// # Examples
@@ -136,7 +140,9 @@ where T: 'a + Hash + Eq {
     /// assert_eq!(ring.get_node(&"point-1"), &"node-1");
     /// ```
     pub fn get_node<U>(&mut self, point: &U) -> &T
-    where U: Hash {
+    where
+        U: Hash,
+    {
         let hash = util::gen_hash(point);
         if let Some(node) = self.get_next_node(&hash) {
             &*node
@@ -207,7 +213,9 @@ where T: 'a + Hash + Eq {
 }
 
 impl<'a, T> IntoIterator for &'a Ring<'a, T>
-where T: Hash + Eq {
+where
+    T: Hash + Eq,
+{
     type Item = (&'a T, usize);
     type IntoIter = Box<Iterator<Item = (&'a T, usize)> + 'a>;
 
@@ -217,7 +225,9 @@ where T: Hash + Eq {
 }
 
 impl<'a, T> Default for Ring<'a, T>
-where T: 'a + Hash + Eq {
+where
+    T: 'a + Hash + Eq,
+{
     fn default() -> Self {
         Self::new()
     }
@@ -579,7 +589,9 @@ mod tests {
     pub struct Key(pub u32);
     impl Hash for Key {
         fn hash<H>(&self, state: &mut H)
-        where H: Hasher {
+        where
+            H: Hasher,
+        {
             state.write_u32(self.0 / 2);
         }
     }
