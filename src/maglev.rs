@@ -126,6 +126,8 @@ where
     }
 
     /// Returns the number of nodes in the ring.
+    ///
+    /// # Examples
     /// ```
     /// use hash_rings::maglev::Ring;
     ///
@@ -138,6 +140,8 @@ where
 
     /// Returns the capacity of the ring. If nodes are removed and the ring is regenerated, the
     /// ring should be rebuilt with the same capacity.
+    ///
+    /// # Examples
     /// ```
     /// use hash_rings::maglev::Ring;
     ///
@@ -149,6 +153,8 @@ where
     }
 
     /// Returns the node associated with a key.
+    ///
+    /// # Examples
     /// ```
     /// use hash_rings::maglev::Ring;
     ///

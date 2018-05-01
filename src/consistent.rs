@@ -275,8 +275,8 @@ where
     }
 
     fn get_next_node(&mut self, hash: &u64) -> Option<(u64, &mut HashSet<&'a U>)> {
-        if self.data.range_mut(hash..).next().is_some() {
-            self.data.range_mut(hash..).next().map(|entry| (*entry.0, entry.1))
+        if self.data.range_mut(*hash..).next().is_some() {
+            self.data.range_mut(*hash..).next().map(|entry| (*entry.0, entry.1))
         } else if self.data.iter_mut().next().is_some() {
             self.data.iter_mut().next().map(|entry| (*entry.0, entry.1))
         } else {
