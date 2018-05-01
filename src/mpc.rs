@@ -1,6 +1,6 @@
-use extended_collections::treap::TreapMap;
 use rand::{Rng, XorShiftRng};
 use siphasher::sip::SipHasher;
+use std::collections::{BTreeMap, Bound};
 use std::hash::{Hash, Hasher};
 use util;
 
@@ -34,7 +34,7 @@ pub struct Ring<'a, T>
 where
     T: 'a + Hash + Eq,
 {
-    nodes: TreapMap<u64, &'a T>,
+    nodes: BTreeMap<u64, &'a T>,
     hash_count: u64,
     hashers: [SipHasher; 2],
 }
@@ -83,21 +83,21 @@ where
     pub fn new(hash_count: u64) -> Self {
         assert!(hash_count > 0);
         Ring {
-            nodes: TreapMap::new(),
+            nodes: BTreeMap::new(),
             hash_count,
             hashers: Self::get_hashers(),
         }
     }
 
     fn get_next_hash(&self, hash: &u64) -> u64 {
-        match self.nodes.ceil(hash) {
-            Some(&hash) => hash,
-            None => {
-                match self.nodes.min() {
-                    Some(&hash) => hash,
-                    None => panic!("Error: empty ring."),
-                }
-            },
+        let next_hash_opt = self.nodes
+            .range((Bound::Included(hash), Bound::Unbounded))
+            .next()
+            .or_else(|| self.nodes.iter().next())
+            .map(|entry| *entry.0);
+        match next_hash_opt {
+            Some(hash) => hash,
+            None => panic!("Error: empty ring."),
         }
     }
 

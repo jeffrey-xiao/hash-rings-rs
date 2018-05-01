@@ -1,5 +1,4 @@
-use extended_collections::treap::TreapMap;
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, Bound, HashMap, HashSet};
 use std::hash::Hash;
 use std::iter::Iterator;
 use std::mem;
@@ -36,7 +35,7 @@ pub struct Ring<'a, T>
 where
     T: 'a + Hash + Eq,
 {
-    nodes: TreapMap<u64, &'a T>,
+    nodes: BTreeMap<u64, &'a T>,
     replicas: HashMap<&'a T, usize>,
 }
 
@@ -54,21 +53,17 @@ where
     /// ```
     pub fn new() -> Self {
         Ring {
-            nodes: TreapMap::new(),
+            nodes: BTreeMap::new(),
             replicas: HashMap::new(),
         }
     }
 
     fn get_next_node(&self, hash: &u64) -> Option<&T> {
-        match self.nodes.ceil(hash) {
-            Some(&hash) => Some(&*self.nodes[&hash]),
-            None => {
-                match self.nodes.min() {
-                    Some(&hash) => Some(&*self.nodes[&hash]),
-                    None => None,
-                }
-            },
-        }
+        self.nodes
+            .range((Bound::Included(hash), Bound::Unbounded))
+            .next()
+            .or_else(|| self.nodes.iter().next())
+            .map(|entry| *entry.1)
     }
 
     /// Inserts a node into the ring with a number of replicas.
@@ -256,7 +251,7 @@ where
     U: 'a + Hash + Eq,
 {
     ring: Ring<'a, T>,
-    data: TreapMap<u64, HashSet<&'a U>>,
+    data: BTreeMap<u64, HashSet<&'a U>>,
 }
 
 impl<'a, T, U> Client<'a, T, U>
@@ -275,19 +270,17 @@ where
     pub fn new() -> Self {
         Client {
             ring: Ring::new(),
-            data: TreapMap::new(),
+            data: BTreeMap::new(),
         }
     }
 
     fn get_next_node(&mut self, hash: &u64) -> Option<(u64, &mut HashSet<&'a U>)> {
-        match self.data.ceil(hash) {
-            Some(&hash) => Some((hash, &mut self.data[&hash])),
-            None => {
-                match self.data.min() {
-                    Some(&hash) => Some((hash, &mut self.data[&hash])),
-                    None => None,
-                }
-            },
+        if self.data.range_mut(hash..).next().is_some() {
+            self.data.range_mut(hash..).next().map(|entry| (*entry.0, entry.1))
+        } else if self.data.iter_mut().next().is_some() {
+            self.data.iter_mut().next().map(|entry| (*entry.0, entry.1))
+        } else {
+            None
         }
     }
 
@@ -355,7 +348,7 @@ where
         for i in 0..replicas {
             let hash = util::combine_hash(util::gen_hash(id), util::gen_hash(&i));
             if !self.ring.contains_node(hash) {
-                if let Some((_, mut points)) = self.data.remove(&hash) {
+                if let Some(mut points) = self.data.remove(&hash) {
                     if let Some((_, next_points)) = self.get_next_node(&hash) {
                         next_points.extend(points);
                     } else {

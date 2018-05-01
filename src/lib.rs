@@ -1,4 +1,3 @@
-extern crate extended_collections;
 extern crate primal;
 extern crate rand;
 extern crate siphasher;
