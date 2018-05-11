@@ -107,7 +107,7 @@ where
             let hash = util::combine_hash(util::gen_hash(id), util::gen_hash(&i));
             let should_remove = {
                 if let Some(existing_id) = self.nodes.get(&hash) {
-                    **existing_id == *id
+                    *existing_id == id
                 } else {
                     false
                 }

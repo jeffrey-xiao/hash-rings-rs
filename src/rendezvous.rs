@@ -278,7 +278,7 @@ where
         let mut new_points = HashSet::new();
 
         for (point, node_entry) in &mut self.points {
-            let (ref mut original_node, ref mut original_score) = *node_entry;
+            let (ref mut original_node, ref mut original_score) = node_entry;
             let point_hash = util::gen_hash(point);
             let max_score = hashes
                 .iter()
