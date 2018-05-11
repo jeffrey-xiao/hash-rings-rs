@@ -172,11 +172,11 @@ where
     /// assert_eq!(iterator.next(), Some((&"node-1", 1f64)));
     /// assert_eq!(iterator.next(), None);
     /// ```
-    pub fn iter(&'a self) -> Box<Iterator<Item = (&'a T, f64)> + 'a> {
-        Box::new(self.nodes.iter().map(|node_entry| {
+    pub fn iter(&'a self) -> impl Iterator<Item = (&'a T, f64)> {
+        self.nodes.iter().map(|node_entry| {
             let (id, weight) = node_entry;
             (&**id, *weight)
-        }))
+        })
     }
 }
 
@@ -188,7 +188,7 @@ where
     type IntoIter = Box<Iterator<Item = (&'a T, f64)> + 'a>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.iter()
+        Box::new(self.iter())
     }
 }
 
@@ -449,9 +449,9 @@ where
     /// assert_eq!(iterator.next(), Some((&"node-1", vec![&"point-1"])));
     /// assert_eq!(iterator.next(), None);
     /// ```
-    pub fn iter(&'a self) -> Box<Iterator<Item = (&'a T, Vec<&'a U>)> + 'a> {
-        Box::new(self.nodes.iter().map(move |ref node_entry| {
-            let &(node_id, points) = node_entry;
+    pub fn iter(&'a self) -> impl Iterator<Item = (&'a T, Vec<&'a U>)> {
+        Box::new(self.nodes.iter().map(move |node_entry| {
+            let (node_id, points) = node_entry;
             (&**node_id, points.iter().map(|point| *point).collect())
         }))
     }
@@ -466,7 +466,7 @@ where
     type IntoIter = Box<Iterator<Item = (&'a T, Vec<&'a U>)> + 'a>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.iter()
+        Box::new(self.iter())
     }
 }
 

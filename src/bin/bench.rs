@@ -57,7 +57,7 @@ fn bench_carp() {
     let ring = carp::Ring::new(
         nodes
             .iter()
-            .map(|ref node| carp::Node::new(&node.0, node.1))
+            .map(|node| carp::Node::new(&node.0, node.1))
             .collect(),
     );
 

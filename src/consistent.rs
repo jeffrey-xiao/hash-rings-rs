@@ -199,11 +199,11 @@ where
     /// assert_eq!(iterator.next(), Some((&"node-1", 1)));
     /// assert_eq!(iterator.next(), None);
     /// ```
-    pub fn iter(&'a self) -> Box<Iterator<Item = (&'a T, usize)> + 'a> {
-        Box::new(self.replicas.iter().map(|replica| {
+    pub fn iter(&'a self) -> impl Iterator<Item = (&'a T, usize)> {
+        self.replicas.iter().map(|replica| {
             let (id, replica_count) = replica;
             (&**id, *replica_count)
-        }))
+        })
     }
 }
 
@@ -215,7 +215,7 @@ where
     type IntoIter = Box<Iterator<Item = (&'a T, usize)> + 'a>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.iter()
+        Box::new(self.iter())
     }
 }
 
@@ -495,15 +495,15 @@ where
     /// assert_eq!(iterator.next(), Some((&"node-1", vec![&"point-1"])));
     /// assert_eq!(iterator.next(), None);
     /// ```
-    pub fn iter(&'a self) -> Box<Iterator<Item = (&'a T, Vec<&'a U>)> + 'a> {
-        Box::new(self.ring.iter().map(move |ref replica| {
+    pub fn iter(&'a self) -> impl Iterator<Item = (&'a T, Vec<&'a U>)> {
+        self.ring.iter().map(move |replica| {
             let mut points = Vec::new();
             for i in 0..replica.1 {
                 let hash = util::combine_hash(util::gen_hash(&*replica.0), util::gen_hash(&i));
                 points.extend(self.data.get(&hash).unwrap())
             }
             (replica.0, points)
-        }))
+        })
     }
 }
 
@@ -516,7 +516,7 @@ where
     type IntoIter = Box<Iterator<Item = (&'a T, Vec<&'a U>)> + 'a>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.iter()
+        Box::new(self.iter())
     }
 }
 

@@ -209,8 +209,8 @@ where
     /// assert_eq!(iterator.next(), Some(&"node-1"));
     /// assert_eq!(iterator.next(), None);
     /// ```
-    pub fn iter(&'a self) -> Box<Iterator<Item = &'a T> + 'a> {
-        Box::new(self.nodes.iter().map(|node| *node.1))
+    pub fn iter(&'a self) -> impl Iterator<Item = &'a T> {
+        self.nodes.iter().map(|node| *node.1)
     }
 }
 
@@ -222,7 +222,7 @@ where
     type IntoIter = Box<Iterator<Item = &'a T> + 'a>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.iter()
+        Box::new(self.iter())
     }
 }
 

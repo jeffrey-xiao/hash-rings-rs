@@ -253,8 +253,8 @@ where
     /// assert_eq!(iterator.next(), Some((&"node-2", 3f64)));
     /// assert_eq!(iterator.next(), None);
     /// ```
-    pub fn iter(&'a self) -> Box<Iterator<Item = (&'a T, f64)> + 'a> {
-        Box::new(self.nodes.iter().map(|node| (&*node.id, node.weight)))
+    pub fn iter(&'a self) -> impl Iterator<Item = (&'a T, f64)> {
+        self.nodes.iter().map(|node| (&*node.id, node.weight))
     }
 }
 
@@ -266,7 +266,7 @@ where
     type IntoIter = Box<Iterator<Item = (&'a T, f64)> + 'a>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.iter()
+        Box::new(self.iter())
     }
 }
 
