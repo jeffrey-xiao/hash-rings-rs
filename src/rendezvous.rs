@@ -120,12 +120,12 @@ where
                         .iter()
                         .map(|hash| util::combine_hash(*hash, point_hash))
                         .max()
-                        .unwrap(),
+                        .expect("Expected non-zero number of replicas."),
                     entry.0,
                 )
             })
             .max()
-            .unwrap()
+            .expect("Expected non-empty ring.")
             .1
     }
 
@@ -284,10 +284,13 @@ where
                 .iter()
                 .map(|hash| util::combine_hash(*hash, point_hash))
                 .max()
-                .unwrap();
+                .expect("Expected non-zero number of replicas.");
 
             if max_score > *original_score {
-                self.nodes.get_mut(original_node).unwrap().remove(point);
+                self.nodes
+                    .get_mut(original_node)
+                    .expect("Expected node to exist.")
+                    .remove(point);
                 new_points.insert(*point);
                 *original_score = max_score;
                 *original_node = id;
@@ -326,9 +329,12 @@ where
                     .iter()
                     .map(|hash| util::combine_hash(*hash, point_hash))
                     .max()
-                    .unwrap();
+                    .expect("Expected non-zero number of replicas");
 
-                self.nodes.get_mut(new_node).unwrap().insert(point);
+                self.nodes
+                    .get_mut(new_node)
+                    .expect("Expected node to exist.")
+                    .insert(point);
                 self.points.insert(point, (new_node, max_score));
             }
         }
@@ -393,8 +399,11 @@ where
             .iter()
             .map(|hash| util::combine_hash(*hash, point_hash))
             .max()
-            .unwrap();
-        self.nodes.get_mut(node).unwrap().insert(point);
+            .expect("Expected non-zero number of replicas.");
+        self.nodes
+            .get_mut(node)
+            .expect("Expected node to exist.")
+            .insert(point);
         self.points.insert(point, (node, max_score));
     }
 
@@ -414,7 +423,10 @@ where
     /// ```
     pub fn remove_point(&mut self, point: &U) {
         let node = self.ring.get_node(point);
-        self.nodes.get_mut(node).unwrap().remove(point);
+        self.nodes
+            .get_mut(node)
+            .expect("Expected node to exist.")
+            .remove(point);
         self.points.remove(point);
     }
 

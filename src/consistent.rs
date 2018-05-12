@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, Bound, HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::hash::Hash;
 use std::iter::Iterator;
 use std::mem;
@@ -60,7 +60,7 @@ where
 
     fn get_next_node(&self, hash: &u64) -> Option<&T> {
         self.nodes
-            .range((Bound::Included(hash), Bound::Unbounded))
+            .range(hash..)
             .next()
             .or_else(|| self.nodes.iter().next())
             .map(|entry| *entry.1)
@@ -500,7 +500,7 @@ where
             let mut points = Vec::new();
             for i in 0..replica.1 {
                 let hash = util::combine_hash(util::gen_hash(&*replica.0), util::gen_hash(&i));
-                points.extend(self.data.get(&hash).unwrap())
+                points.extend(&self.data[&hash])
             }
             (replica.0, points)
         })

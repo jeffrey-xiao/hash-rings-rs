@@ -1,6 +1,6 @@
 use rand::{Rng, XorShiftRng};
 use siphasher::sip::SipHasher;
-use std::collections::{BTreeMap, Bound};
+use std::collections::BTreeMap;
 use std::hash::{Hash, Hasher};
 use util;
 
@@ -91,7 +91,7 @@ where
 
     fn get_next_hash(&self, hash: &u64) -> u64 {
         let next_hash_opt = self.nodes
-            .range((Bound::Included(hash), Bound::Unbounded))
+            .range(hash..)
             .next()
             .or_else(|| self.nodes.iter().next())
             .map(|entry| *entry.0);

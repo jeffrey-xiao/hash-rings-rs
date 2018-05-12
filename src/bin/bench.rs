@@ -23,14 +23,14 @@ fn print_node_statistic(id: u64, expected: f64, actual: f64) {
 }
 
 fn print_bench_statistic(duration: Duration) {
-    let total_time = duration.as_secs() as f64 * 1e9 + duration.subsec_nanos() as f64;
+    let total_time = duration.as_secs() as f64 * 1e9 + f64::from(duration.subsec_nanos());
     let ns_per_operation = total_time / ITEMS as f64;
     let operations_per_sec = 1e9 / ns_per_operation;
-    println!("");
+    println!();
     println!("Total elapsed time:         {:>10.3} ms", total_time / 1e6);
     println!("Milliseconds per operation: {:>10.3} ns", ns_per_operation);
     println!("Operations per second:      {:>10.3} op/ms", operations_per_sec);
-    println!("");
+    println!();
 }
 
 fn bench_carp() {

@@ -89,7 +89,7 @@ where
         let m = Sieve::new(capacity_hint * 2)
             .primes_from(capacity_hint)
             .next()
-            .unwrap();
+            .expect("Expected a prime larger than or equal to `capacity_hint`.");
         let n = nodes.len();
 
         let permutation: Vec<Vec<usize>> = nodes

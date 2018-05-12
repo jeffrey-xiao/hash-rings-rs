@@ -91,6 +91,9 @@ where
 
     /// Constructs a new, empty `Ring<T>`.
     ///
+    /// # Panics
+    /// Panics if `nodes` is empty.
+    ///
     /// # Examples
     /// ```
     /// use hash_rings::carp::Ring;
@@ -98,6 +101,7 @@ where
     /// let mut ring: Ring<&str> = Ring::new(vec![]);
     /// ```
     pub fn new(mut nodes: Vec<Node<'a, T>>) -> Ring<'a, T> {
+        assert!(!nodes.is_empty());
         nodes.reverse();
         nodes.sort_by_key(|node| node.id);
         nodes.dedup_by_key(|node| node.id);
@@ -105,7 +109,7 @@ where
             if (n.weight - m.weight).abs() < f64::EPSILON {
                 n.id.cmp(m.id)
             } else {
-                n.weight.partial_cmp(&m.weight).unwrap()
+                n.weight.partial_cmp(&m.weight).expect("Expected all non-NaN floats.")
             }
         });
         let mut ret = Ring { nodes };
@@ -139,7 +143,7 @@ where
             if (n.weight - m.weight).abs() < f64::EPSILON {
                 n.id.cmp(m.id)
             } else {
-                n.weight.partial_cmp(&m.weight).unwrap()
+                n.weight.partial_cmp(&m.weight).expect("Expected all non-NaN floats.")
             }
         });
         self.rebalance();
@@ -194,10 +198,10 @@ where
                 if n == m {
                     n.1.cmp(m.1)
                 } else {
-                    n.0.partial_cmp(&m.0).unwrap()
+                    n.0.partial_cmp(&m.0).expect("Expected all non-NaN floats.")
                 }
             })
-            .unwrap()
+            .expect("Expected non-empty ring.")
             .1
     }
 

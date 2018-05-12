@@ -120,10 +120,10 @@ where
                 if n == m {
                     n.1.cmp(m.1)
                 } else {
-                    n.0.partial_cmp(&m.0).unwrap()
+                    n.0.partial_cmp(&m.0).expect("Expected all non-NaN floats.")
                 }
             })
-            .unwrap()
+            .expect("Expected non-empty ring.")
             .1
     }
 
@@ -277,7 +277,10 @@ where
             let curr_score = -weight / (curr_hash as f64 / u64::max_value() as f64).ln();
 
             if curr_score > *original_score {
-                self.nodes.get_mut(original_node).unwrap().remove(point);
+                self.nodes
+                    .get_mut(original_node)
+                    .expect("Expected node to exist.")
+                    .remove(point);
                 new_points.insert(*point);
                 *original_score = curr_score;
                 *original_node = id;
@@ -315,7 +318,10 @@ where
                 let coefficient = -1.0 / (curr_hash as f64 / u64::max_value() as f64).ln();
                 let curr_score = self.ring.nodes[new_node] / coefficient;
 
-                self.nodes.get_mut(new_node).unwrap().insert(point);
+                self.nodes
+                    .get_mut(new_node)
+                    .expect("Expected node to exist.")
+                    .insert(point);
                 self.points.insert(point, (new_node, curr_score));
             }
         }
@@ -379,7 +385,10 @@ where
         let coefficient = -1.0 / (curr_hash as f64 / u64::max_value() as f64).ln();
         let curr_score = self.ring.nodes[new_node] / coefficient;
 
-        self.nodes.get_mut(new_node).unwrap().insert(point);
+        self.nodes
+            .get_mut(new_node)
+            .expect("Expected node to exist.")
+            .insert(point);
         self.points.insert(point, (new_node, curr_score));
     }
 
@@ -399,7 +408,10 @@ where
     /// ```
     pub fn remove_point(&mut self, point: &U) {
         let node = self.ring.get_node(point);
-        self.nodes.get_mut(node).unwrap().remove(point);
+        self.nodes
+            .get_mut(node)
+            .expect("Expected node to exist.")
+            .remove(point);
         self.points.remove(point);
     }
 
