@@ -91,9 +91,6 @@ where
 
     /// Constructs a new, empty `Ring<T>`.
     ///
-    /// # Panics
-    /// Panics if `nodes` is empty.
-    ///
     /// # Examples
     /// ```
     /// use hash_rings::carp::Ring;
@@ -101,7 +98,6 @@ where
     /// let mut ring: Ring<&str> = Ring::new(vec![]);
     /// ```
     pub fn new(mut nodes: Vec<Node<'a, T>>) -> Ring<'a, T> {
-        assert!(!nodes.is_empty());
         nodes.reverse();
         nodes.sort_by_key(|node| node.id);
         nodes.dedup_by_key(|node| node.id);
@@ -170,6 +166,9 @@ where
     }
 
     /// Returns the node associated with a point.
+    ///
+    /// # Panics
+    /// Panics if the ring is empty.
     ///
     /// # Examples
     /// ```
