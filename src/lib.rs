@@ -54,7 +54,7 @@
 //! ```
 //! 
 //! ## Benchmarks
-//! ```
+//! ```text
 //! Benching carp hashing (10 nodes, 100000 items)
 //! 15848556381555908996 - Expected: 0.155015 | Actual: 0.155180 | Error: -0.001060
 //! 06801744144136471498 - Expected: 0.056593 | Actual: 0.056960 | Error: -0.006447
