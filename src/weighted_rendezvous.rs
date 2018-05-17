@@ -1,3 +1,5 @@
+//! Hashing ring implemented using weighted rendezvous hashing.
+
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::vec::Vec;

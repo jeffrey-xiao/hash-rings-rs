@@ -1,3 +1,5 @@
+//! Hashing ring implemented using consistent hashing.
+
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::hash::Hash;
 use std::iter::Iterator;

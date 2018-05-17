@@ -1,15 +1,17 @@
+//! Hashing ring implemented using jump hashing.
+
 use std::hash::Hash;
 use util;
 
-/// A hashing ring implemented using jump hash.
+/// A hashing ring implemented using jump hashing.
 ///
-/// Jump hash is based on using a hash of the key as the seed for a random number generator and
+/// Jump hashing is based on using a hash of the key as the seed for a random number generator and
 /// using it to jump forward in a list of nodes until it falls off the end. The last node it lands
 /// on is the result.
 ///
-/// Jump hash is very fast and executes in `O(ln n)` time. It also has no memory overhead and has
-/// virtually perfect key distribution. However, the main limitation of jump hash is that it returns
-/// an integer in the range [0, nodes) and it does not support arbitrary node names.
+/// Jump hashing is very fast and executes in `O(ln n)` time. It also has no memory overhead and has
+/// virtually perfect key distribution. However, the main limitation of jump hashing is that it
+/// returns an integer in the range [0, nodes) and it does not support arbitrary node names.
 ///
 /// # Examples
 /// ```

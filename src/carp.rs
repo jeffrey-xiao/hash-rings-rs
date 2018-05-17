@@ -1,3 +1,5 @@
+//! Hashing ring implemented using the Cache Ring Routing Protocol.
+
 use std::f64;
 use std::hash::Hash;
 use util;
@@ -21,6 +23,14 @@ impl<'a, T> Node<'a, T>
 where
     T: 'a + Hash + Ord,
 {
+    /// Constructs a new node with a particular weight associated with it.
+    ///
+    /// # Examples
+    /// ```
+    /// use hash_rings::carp::{Node, Ring};
+    ///
+    /// let node = Node::new(&"node-1", 1f64);
+    /// ```
     pub fn new(id: &'a T, weight: f64) -> Self {
         Node {
             id,

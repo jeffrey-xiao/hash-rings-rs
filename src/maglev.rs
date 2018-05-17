@@ -1,3 +1,5 @@
+//! Hashing ring implemented using maglev hashing.
+
 use primal::Sieve;
 use rand::{Rng, XorShiftRng};
 use siphasher::sip::SipHasher;

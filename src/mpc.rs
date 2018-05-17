@@ -1,3 +1,5 @@
+//! Hashing ring implemented using multi-probe consistent hashing.
+
 use rand::{Rng, XorShiftRng};
 use siphasher::sip::SipHasher;
 use std::collections::BTreeMap;
