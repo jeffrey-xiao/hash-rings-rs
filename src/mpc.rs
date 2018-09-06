@@ -91,7 +91,7 @@ where
         }
     }
 
-    fn get_next_hash(&self, hash: &u64) -> u64 {
+    fn get_next_hash(&self, hash: u64) -> u64 {
         let next_hash_opt = self.nodes
             .range(hash..)
             .next()
@@ -157,7 +157,7 @@ where
         let hash = (0..self.hash_count)
             .map(|i| {
                 let hash = hashes[0].wrapping_add((i as u64).wrapping_mul(hashes[1]) % PRIME);
-                let next_hash = self.get_next_hash(&hash);
+                let next_hash = self.get_next_hash(hash);
                 (Self::get_distance(hash, next_hash), next_hash)
             })
             .min()

@@ -60,7 +60,7 @@ where
         }
     }
 
-    fn get_next_node(&self, hash: &u64) -> Option<&T> {
+    fn get_next_node(&self, hash: u64) -> Option<&T> {
         self.nodes
             .range(hash..)
             .next()
@@ -141,7 +141,7 @@ where
         U: Hash,
     {
         let hash = util::gen_hash(point);
-        if let Some(node) = self.get_next_node(&hash) {
+        if let Some(node) = self.get_next_node(hash) {
             &*node
         } else {
             panic!("Error: empty ring.");
@@ -276,9 +276,9 @@ where
         }
     }
 
-    fn get_next_node(&mut self, hash: &u64) -> Option<(u64, &mut HashSet<&'a U>)> {
-        if self.data.range_mut(*hash..).next().is_some() {
-            self.data.range_mut(*hash..).next().map(|entry| (*entry.0, entry.1))
+    fn get_next_node(&mut self, hash: u64) -> Option<(u64, &mut HashSet<&'a U>)> {
+        if self.data.range_mut(hash..).next().is_some() {
+            self.data.range_mut(hash..).next().map(|entry| (*entry.0, entry.1))
         } else if self.data.iter_mut().next().is_some() {
             self.data.iter_mut().next().map(|entry| (*entry.0, entry.1))
         } else {
@@ -311,7 +311,7 @@ where
             let mut new_points = HashSet::new();
             // if hash already exists, then no additional work is needed to be done
             if !self.data.contains_key(&new_hash) {
-                if let Some((hash, points)) = self.get_next_node(&new_hash) {
+                if let Some((hash, points)) = self.get_next_node(new_hash) {
                     let (old_set, new_set) = points.drain().partition(|point| {
                         let point_hash = util::gen_hash(point);
                         if new_hash < hash {
@@ -351,7 +351,7 @@ where
             let hash = util::combine_hash(util::gen_hash(id), util::gen_hash(&i));
             if !self.ring.contains_node(hash) {
                 if let Some(mut points) = self.data.remove(&hash) {
-                    if let Some((_, next_points)) = self.get_next_node(&hash) {
+                    if let Some((_, next_points)) = self.get_next_node(hash) {
                         next_points.extend(points);
                     } else {
                         panic!("Error: empty ring after deletion.");
@@ -421,7 +421,7 @@ where
     /// ```
     pub fn insert_point(&mut self, point: &'a U) {
         let hash = util::gen_hash(point);
-        if let Some((_, points)) = self.get_next_node(&hash) {
+        if let Some((_, points)) = self.get_next_node(hash) {
             points.insert(point);
         } else {
             panic!("Error: empty ring.");
@@ -444,7 +444,7 @@ where
     /// ```
     pub fn remove_point(&mut self, point: &U) {
         let hash = util::gen_hash(&point);
-        if let Some((_, points)) = self.get_next_node(&hash) {
+        if let Some((_, points)) = self.get_next_node(hash) {
             points.remove(point);
         } else {
             panic!("Error: empty ring.");
