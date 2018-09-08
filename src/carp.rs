@@ -11,7 +11,7 @@ use util;
 /// weight of 1.
 pub struct Node<'a, T>
 where
-    T: 'a + Hash + Ord,
+    T: 'a,
 {
     id: &'a T,
     hash: u64,
@@ -21,7 +21,7 @@ where
 
 impl<'a, T> Node<'a, T>
 where
-    T: 'a + Hash + Ord,
+    T: Hash,
 {
     /// Constructs a new node with a particular weight associated with it.
     ///
@@ -66,15 +66,12 @@ where
 /// ```
 pub struct Ring<'a, T>
 where
-    T: 'a + Hash + Ord,
+    T: 'a,
 {
     nodes: Vec<Node<'a, T>>,
 }
 
-impl<'a, T> Ring<'a, T>
-where
-    T: 'a + Hash + Ord,
-{
+impl<'a, T> Ring<'a, T> {
     fn rebalance(&mut self) {
         let mut product = 1f64;
         let len = self.nodes.len() as f64;
@@ -107,7 +104,10 @@ where
     ///
     /// let mut ring: Ring<&str> = Ring::new(vec![]);
     /// ```
-    pub fn new(mut nodes: Vec<Node<'a, T>>) -> Ring<'a, T> {
+    pub fn new(mut nodes: Vec<Node<'a, T>>) -> Ring<'a, T>
+    where
+        T: Ord,
+    {
         nodes.reverse();
         nodes.sort_by_key(|node| node.id);
         nodes.dedup_by_key(|node| node.id);
@@ -139,7 +139,10 @@ where
     ///
     /// ring.remove_node(&"node-1");
     /// ```
-    pub fn insert_node(&mut self, new_node: Node<'a, T>) {
+    pub fn insert_node(&mut self, new_node: Node<'a, T>)
+    where
+        T: Ord,
+    {
         if let Some(index) = self.nodes.iter().position(|node| node.id == new_node.id) {
             self.nodes[index] = new_node;
         } else {
@@ -168,7 +171,10 @@ where
     ///
     /// ring.remove_node(&"node-2");
     /// ```
-    pub fn remove_node(&mut self, id: &T) {
+    pub fn remove_node(&mut self, id: &T)
+    where
+        T: Eq,
+    {
         if let Some(index) = self.nodes.iter().position(|node| node.id == id) {
             self.nodes.remove(index);
             self.rebalance();
@@ -192,7 +198,8 @@ where
     /// ```
     pub fn get_node<U>(&self, point: &U) -> &'a T
     where
-        U: Hash + Eq,
+        T: Ord,
+        U: Hash,
     {
         let point_hash = util::gen_hash(point);
         self.nodes
@@ -271,10 +278,7 @@ where
     }
 }
 
-impl<'a, T> IntoIterator for &'a Ring<'a, T>
-where
-    T: Hash + Ord,
-{
+impl<'a, T> IntoIterator for &'a Ring<'a, T> {
     type Item = (&'a T, f64);
     type IntoIter = Box<Iterator<Item = (&'a T, f64)> + 'a>;
 

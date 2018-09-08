@@ -23,7 +23,7 @@ use std::iter;
 /// ```
 pub struct Ring<'a, T>
 where
-    T: 'a + Hash,
+    T: 'a,
 {
     nodes: Vec<&'a T>,
     lookup: Vec<usize>,

@@ -35,7 +35,7 @@ use util;
 /// ```
 pub struct Ring<'a, T>
 where
-    T: 'a + Hash + Eq,
+    T: 'a,
 {
     nodes: BTreeMap<u64, &'a T>,
     replicas: HashMap<&'a T, usize>,
@@ -43,7 +43,7 @@ where
 
 impl<'a, T> Ring<'a, T>
 where
-    T: 'a + Hash + Eq,
+    T: Hash + Eq,
 {
     /// Constructs a new, empty `Ring<T>`.
     ///
@@ -223,7 +223,7 @@ where
 
 impl<'a, T> Default for Ring<'a, T>
 where
-    T: 'a + Hash + Eq,
+    T: Hash + Eq,
 {
     fn default() -> Self {
         Self::new()
@@ -249,8 +249,8 @@ where
 /// ```
 pub struct Client<'a, T, U>
 where
-    T: 'a + Hash + Eq,
-    U: 'a + Hash + Eq,
+    T: 'a,
+    U: 'a,
 {
     ring: Ring<'a, T>,
     data: BTreeMap<u64, HashSet<&'a U>>,
@@ -258,8 +258,8 @@ where
 
 impl<'a, T, U> Client<'a, T, U>
 where
-    T: 'a + Hash + Eq,
-    U: 'a + Hash + Eq,
+    T: Hash + Eq,
+    U: Hash + Eq,
 {
     /// Constructs a new, empty `Client<T, U>`.
     ///
@@ -511,8 +511,8 @@ where
 
 impl<'a, T, U> IntoIterator for &'a Client<'a, T, U>
 where
-    T: 'a + Hash + Eq,
-    U: 'a + Hash + Eq,
+    T: Hash + Eq,
+    U: Hash + Eq,
 {
     type Item = (&'a T, Vec<&'a U>);
     type IntoIter = Box<Iterator<Item = (&'a T, Vec<&'a U>)> + 'a>;
@@ -524,8 +524,8 @@ where
 
 impl<'a, T, U> Default for Client<'a, T, U>
 where
-    T: 'a + Hash + Eq,
-    U: 'a + Hash + Eq,
+    T: Hash + Eq,
+    U: Hash + Eq,
 {
     fn default() -> Self {
         Self::new()

@@ -34,7 +34,7 @@ const PRIME: u64 = 0xFFFF_FFFF_FFFF_FFC5;
 /// ```
 pub struct Ring<'a, T>
 where
-    T: 'a + Hash + Eq,
+    T: 'a,
 {
     nodes: BTreeMap<u64, &'a T>,
     hash_count: u64,
@@ -43,7 +43,7 @@ where
 
 impl<'a, T> Ring<'a, T>
 where
-    T: 'a + Hash + Eq,
+    T: Hash + Eq,
 {
     fn get_hashers() -> [SipHasher; 2] {
         let mut rng = XorShiftRng::new_unseeded();

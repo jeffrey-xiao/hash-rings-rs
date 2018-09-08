@@ -31,14 +31,14 @@ use util;
 /// ```
 pub struct Ring<'a, T>
 where
-    T: 'a + Hash + Ord,
+    T: 'a,
 {
     nodes: HashMap<&'a T, f64>,
 }
 
 impl<'a, T> Ring<'a, T>
 where
-    T: 'a + Hash + Ord,
+    T: Hash + Ord,
 {
     /// Constructs a new, empty `Ring<T>`.
     ///
@@ -106,7 +106,7 @@ where
     /// ```
     pub fn get_node<U>(&self, key: &U) -> &'a T
     where
-        U: Hash + Eq,
+        U: Hash,
     {
         let point_hash = util::gen_hash(key);
         self.nodes
@@ -196,7 +196,7 @@ where
 
 impl<'a, T> Default for Ring<'a, T>
 where
-    T: 'a + Hash + Ord,
+    T: Hash + Ord,
 {
     fn default() -> Self {
         Self::new()
@@ -222,8 +222,8 @@ where
 /// ```
 pub struct Client<'a, T, U>
 where
-    T: 'a + Hash + Ord,
-    U: 'a + Hash + Eq,
+    T: 'a,
+    U: 'a,
 {
     ring: Ring<'a, T>,
     nodes: HashMap<&'a T, HashSet<&'a U>>,
@@ -232,8 +232,8 @@ where
 
 impl<'a, T, U> Client<'a, T, U>
 where
-    T: 'a + Hash + Ord,
-    U: 'a + Hash + Eq,
+    T: Hash + Ord,
+    U: Hash + Eq,
 {
     /// Constructs a new, empty `Client<T, U>`.
     ///
