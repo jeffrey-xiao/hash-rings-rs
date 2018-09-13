@@ -1,4 +1,5 @@
 # hash-rings-rs
+
 [![hash-rings](http://meritbadge.herokuapp.com/hash-rings)](https://crates.io/crates/hash-rings)
 [![Documentation](https://docs.rs/hash-rings/badge.svg)](https://docs.rs/hash-rings)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -8,7 +9,9 @@
 `hash-rings` contains implementations for seven different hash ring algorithms: Cache Array Routing Protocol, Consistent Hashing, Multi-Probe Consistent Hashing, Rendezvous Hashing, Weighted Rendezvous Hashing, Maglev Hashing, and Jump Hashing. It also provides clients for Consistent Hashing, Rendezvous Hashing, and Weighted Rendezvous Hashing to efficiently redistribute items as nodes are inserted and removed from the ring.
 
 ## Examples
+
 ### Example Ring Usage
+
 ```rust
 extern crate hash_rings;
 
@@ -25,6 +28,7 @@ fn main() {
 ```
 
 ### Example Client Usage
+
 ```rust
 extern crate hash_rings;
 
@@ -43,6 +47,7 @@ fn main() {
 ```
 
 ## Usage
+
 Add this to your `Cargo.toml`:
 ```toml
 [dependencies]
@@ -54,6 +59,7 @@ extern crate hash_rings;
 ```
 
 ## Benchmarks
+
 ```text
 Benching carp hashing (10 nodes, 100000 items)
 15848556381555908996 - Expected: 0.155015 | Actual: 0.155180 | Error: -0.001060
@@ -175,6 +181,7 @@ Operations per second:       44782.393 op/ms
 ```
 
 ## References
+
  - [A Fast, Minimal Memory, Consistent Hash Algorithm](https://arxiv.org/abs/1406.2294)
  > Lamping, John, and Eric Veach. 2014. “A Fast, Minimal Memory, Consistent Hash Algorithm.” *CoRR* abs/1406.2294. <http://arxiv.org/abs/1406.2294>.
  - [Cache Array Routing Protocol](https://tools.ietf.org/html/draft-vinod-carp-v1-03)
@@ -190,6 +197,7 @@ Operations per second:       44782.393 op/ms
  > Schindelhauer, Christian, and Gunnar Schomaker. 2005. “Weighted Distributed Hash Tables.” In *Proceedings of the Seventeenth Annual Acm Symposium on Parallelism in Algorithms and Architectures*, 218–27. SPAA ’05. New York, NY, USA: ACM. doi:[10.1145/1073970.1074008](https://doi.org/10.1145/1073970.1074008).
 
 ## License
+
 `hash-rings-rs` is dual-licensed under the terms of either the MIT license or the Apache License
 (Version 2.0).
 
