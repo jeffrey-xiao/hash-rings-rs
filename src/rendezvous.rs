@@ -125,8 +125,7 @@ where
                         .expect("Expected non-zero number of replicas."),
                     entry.0,
                 )
-            })
-            .max()
+            }).max()
             .expect("Expected non-empty ring.")
             .1
     }
@@ -192,8 +191,8 @@ impl<'a, T> IntoIterator for &'a Ring<'a, T>
 where
     T: Hash + Ord,
 {
-    type Item = (&'a T, usize);
     type IntoIter = Box<Iterator<Item = (&'a T, usize)> + 'a>;
+    type Item = (&'a T, usize);
 
     fn into_iter(self) -> Self::IntoIter {
         Box::new(self.iter())
@@ -491,8 +490,8 @@ where
     T: Hash + Ord,
     U: Hash + Eq,
 {
-    type Item = (&'a T, Vec<&'a U>);
     type IntoIter = Box<Iterator<Item = (&'a T, Vec<&'a U>)> + 'a>;
+    type Item = (&'a T, Vec<&'a U>);
 
     fn into_iter(self) -> Self::IntoIter {
         Box::new(self.iter())

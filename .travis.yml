@@ -27,6 +27,7 @@ addons:
       - libiberty-dev
 
 script:
+  - cargo fmt --verbose --all -- --check
   - cargo build --verbose --all
   - cargo test --verbose --all
   - cargo run --example example_ring

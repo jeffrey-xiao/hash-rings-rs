@@ -1,48 +1,53 @@
 //! # hash-rings-rs
+//!
 //! [![hash-rings](http://meritbadge.herokuapp.com/hash-rings)](https://crates.io/crates/hash-rings)
 //! [![Documentation](https://docs.rs/hash-rings/badge.svg)](https://docs.rs/hash-rings)
 //! [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 //! [![Build Status](https://travis-ci.org/jeffrey-xiao/hash-rings-rs.svg?branch=master)](https://travis-ci.org/jeffrey-xiao/hash-rings-rs)
 //! [![codecov](https://codecov.io/gh/jeffrey-xiao/hash-rings-rs/branch/master/graph/badge.svg)](https://codecov.io/gh/jeffrey-xiao/hash-rings-rs)
-//! 
+//!
 //! `hash-rings` contains implementations for seven different hash ring algorithms: Cache Array Routing Protocol, Consistent Hashing, Multi-Probe Consistent Hashing, Rendezvous Hashing, Weighted Rendezvous Hashing, Maglev Hashing, and Jump Hashing. It also provides clients for Consistent Hashing, Rendezvous Hashing, and Weighted Rendezvous Hashing to efficiently redistribute items as nodes are inserted and removed from the ring.
-//! 
+//!
 //! ## Examples
+//!
 //! ### Example Ring Usage
+//!
 //! ```rust
 //! extern crate hash_rings;
-//! 
+//!
 //! use hash_rings::consistent::Ring;
-//! 
+//!
 //! fn main() {
 //!     let mut r = Ring::new();
-//! 
+//!
 //!     r.insert_node(&"node-1", 1);
 //!     r.insert_node(&"node-2", 3);
-//! 
+//!
 //!     assert_eq!(r.get_node(&"point-1"), &"node-2");
 //! }
 //! ```
-//! 
+//!
 //! ### Example Client Usage
+//!
 //! ```rust
 //! extern crate hash_rings;
-//! 
+//!
 //! use hash_rings::consistent::Client;
-//! 
+//!
 //! fn main() {
 //!     let mut c = Client::new();
 //!     c.insert_node(&"node-1", 1);
 //!     c.insert_node(&"node-2", 3);
-//! 
+//!
 //!     c.insert_point(&"point-1");
-//! 
+//!
 //!     assert_eq!(c.get_node(&"point-1"), &"node-2");
 //!     assert_eq!(c.get_points(&"node-2"), [&"point-1"]);
 //! }
 //! ```
-//! 
+//!
 //! ## Usage
+//!
 //! Add this to your `Cargo.toml`:
 //! ```toml
 //! [dependencies]
@@ -52,8 +57,9 @@
 //! ```rust
 //! extern crate hash_rings;
 //! ```
-//! 
+//!
 //! ## Benchmarks
+//!
 //! ```text
 //! Benching carp hashing (10 nodes, 100000 items)
 //! 15848556381555908996 - Expected: 0.155015 | Actual: 0.155180 | Error: -0.001060
@@ -66,12 +72,12 @@
 //! 06540337216311911463 - Expected: 0.146495 | Actual: 0.145220 | Error:  0.008782
 //! 13241461372147825909 - Expected: 0.084205 | Actual: 0.084330 | Error: -0.001484
 //! 06769854041949442045 - Expected: 0.149100 | Actual: 0.149090 | Error:  0.000070
-//! 
+//!
 //! Total elapsed time:           1336.552 ms
 //! Milliseconds per operation:  13365.519 ns
 //! Operations per second:       74819.391 op/ms
-//! 
-//! 
+//!
+//!
 //! Benching consistent hashing (10 nodes, 1611 replicas, 100000 items)
 //! 15848556381555908996 - Expected: 0.100000 | Actual: 0.102070 | Error: -0.020280
 //! 13987966085338848396 - Expected: 0.100000 | Actual: 0.102410 | Error: -0.023533
@@ -83,12 +89,12 @@
 //! 05146857450694500275 - Expected: 0.100000 | Actual: 0.099290 | Error:  0.007151
 //! 14589965171469706430 - Expected: 0.100000 | Actual: 0.098170 | Error:  0.018641
 //! 17291863876572781215 - Expected: 0.100000 | Actual: 0.094480 | Error:  0.058425
-//! 
+//!
 //! Total elapsed time:            417.016 ms
 //! Milliseconds per operation:   4170.163 ns
 //! Operations per second:      239798.789 op/ms
-//! 
-//! 
+//!
+//!
 //! Benching jump hashing (10 nodes, 100000 items)
 //! 00000000000000000000 - Expected: 0.100000 | Actual: 0.098250 | Error:  0.017812
 //! 00000000000000000001 - Expected: 0.100000 | Actual: 0.100140 | Error: -0.001398
@@ -100,12 +106,12 @@
 //! 00000000000000000007 - Expected: 0.100000 | Actual: 0.100130 | Error: -0.001298
 //! 00000000000000000008 - Expected: 0.100000 | Actual: 0.098730 | Error:  0.012863
 //! 00000000000000000009 - Expected: 0.100000 | Actual: 0.100640 | Error: -0.006359
-//! 
+//!
 //! Total elapsed time:            191.231 ms
 //! Milliseconds per operation:   1912.314 ns
 //! Operations per second:      522926.543 op/ms
-//! 
-//! 
+//!
+//!
 //! Benching maglev hashing (10 nodes, 100000 items)
 //! 15848556381555908996 - Expected: 0.100000 | Actual: 0.099670 | Error:  0.003311
 //! 13987966085338848396 - Expected: 0.100000 | Actual: 0.100700 | Error: -0.006951
@@ -117,12 +123,12 @@
 //! 05146857450694500275 - Expected: 0.100000 | Actual: 0.101050 | Error: -0.010391
 //! 14589965171469706430 - Expected: 0.100000 | Actual: 0.100660 | Error: -0.006557
 //! 17291863876572781215 - Expected: 0.100000 | Actual: 0.098100 | Error:  0.019368
-//! 
+//!
 //! Total elapsed time:            188.203 ms
 //! Milliseconds per operation:   1882.027 ns
 //! Operations per second:      531342.016 op/ms
-//! 
-//! 
+//!
+//!
 //! Benching mpc hashing (10 nodes, 21 probes, 100000 items)
 //! 15848556381555908996 - Expected: 0.100000 | Actual: 0.096820 | Error:  0.032844
 //! 13987966085338848396 - Expected: 0.100000 | Actual: 0.098510 | Error:  0.015125
@@ -134,12 +140,12 @@
 //! 05146857450694500275 - Expected: 0.100000 | Actual: 0.111780 | Error: -0.105386
 //! 14589965171469706430 - Expected: 0.100000 | Actual: 0.098680 | Error:  0.013377
 //! 17291863876572781215 - Expected: 0.100000 | Actual: 0.112860 | Error: -0.113946
-//! 
+//!
 //! Total elapsed time:           1153.555 ms
 //! Milliseconds per operation:  11535.552 ns
 //! Operations per second:       86688.529 op/ms
-//! 
-//! 
+//!
+//!
 //! Benching rendezvous hashing (10 nodes, 100000 items)
 //! 15848556381555908996 - Expected: 0.100000 | Actual: 0.099680 | Error:  0.003210
 //! 13987966085338848396 - Expected: 0.100000 | Actual: 0.100710 | Error: -0.007050
@@ -151,12 +157,12 @@
 //! 05146857450694500275 - Expected: 0.100000 | Actual: 0.099440 | Error:  0.005632
 //! 14589965171469706430 - Expected: 0.100000 | Actual: 0.101420 | Error: -0.014001
 //! 17291863876572781215 - Expected: 0.100000 | Actual: 0.099670 | Error:  0.003311
-//! 
+//!
 //! Total elapsed time:           1623.272 ms
 //! Milliseconds per operation:  16232.719 ns
 //! Operations per second:       61603.972 op/ms
-//! 
-//! 
+//!
+//!
 //! Benching weighted rendezvous hashing (10 nodes, 100000 items)
 //! 15848556381555908996 - Expected: 0.155015 | Actual: 0.154470 | Error:  0.003531
 //! 06801744144136471498 - Expected: 0.056593 | Actual: 0.057320 | Error: -0.012687
@@ -168,13 +174,14 @@
 //! 06540337216311911463 - Expected: 0.146495 | Actual: 0.144770 | Error:  0.011918
 //! 13241461372147825909 - Expected: 0.084205 | Actual: 0.083530 | Error:  0.008080
 //! 06769854041949442045 - Expected: 0.149100 | Actual: 0.150370 | Error: -0.008443
-//! 
+//!
 //! Total elapsed time:           2233.020 ms
 //! Milliseconds per operation:  22330.205 ns
 //! Operations per second:       44782.393 op/ms
 //! ```
-//! 
+//!
 //! ## References
+//!
 //!  - [Cache Array Routing Protocol](https://tools.ietf.org/html/draft-vinod-carp-v1-03)
 //!  - [Multi-probe consistent hashing](https://arxiv.org/abs/1505.00062)
 //!  > Appleton, Ben, and Michael O’Reilly. 2015. “Multi-Probe Consistent Hashing.” *CoRR* abs/1505.00062. <http://arxiv.org/abs/1505.00062>.

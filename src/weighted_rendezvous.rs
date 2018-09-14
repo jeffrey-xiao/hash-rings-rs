@@ -117,15 +117,13 @@ where
                     -entry.1 / (hash as f64 / u64::max_value() as f64).ln(),
                     entry.0,
                 )
-            })
-            .max_by(|n, m| {
+            }).max_by(|n, m| {
                 if n == m {
                     n.1.cmp(m.1)
                 } else {
                     n.0.partial_cmp(&m.0).expect("Expected all non-NaN floats.")
                 }
-            })
-            .expect("Expected non-empty ring.")
+            }).expect("Expected non-empty ring.")
             .1
     }
 
@@ -186,8 +184,8 @@ impl<'a, T> IntoIterator for &'a Ring<'a, T>
 where
     T: Hash + Ord,
 {
-    type Item = (&'a T, f64);
     type IntoIter = Box<Iterator<Item = (&'a T, f64)> + 'a>;
+    type Item = (&'a T, f64);
 
     fn into_iter(self) -> Self::IntoIter {
         Box::new(self.iter())
@@ -476,8 +474,8 @@ where
     T: Hash + Ord,
     U: Hash + Eq,
 {
-    type Item = (&'a T, Vec<&'a U>);
     type IntoIter = Box<Iterator<Item = (&'a T, Vec<&'a U>)> + 'a>;
+    type Item = (&'a T, Vec<&'a U>);
 
     fn into_iter(self) -> Self::IntoIter {
         Box::new(self.iter())

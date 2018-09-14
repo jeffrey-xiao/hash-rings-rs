@@ -50,10 +50,7 @@ where
 /// ```
 /// use hash_rings::carp::{Node, Ring};
 ///
-/// let mut ring = Ring::new(vec![
-///     Node::new(&"node-1", 1f64),
-///     Node::new(&"node-2", 3f64),
-/// ]);
+/// let mut ring = Ring::new(vec![Node::new(&"node-1", 1f64), Node::new(&"node-2", 3f64)]);
 ///
 /// ring.remove_node(&"node-1");
 ///
@@ -115,7 +112,9 @@ impl<'a, T> Ring<'a, T> {
             if (n.weight - m.weight).abs() < f64::EPSILON {
                 n.id.cmp(m.id)
             } else {
-                n.weight.partial_cmp(&m.weight).expect("Expected all non-NaN floats.")
+                n.weight
+                    .partial_cmp(&m.weight)
+                    .expect("Expected all non-NaN floats.")
             }
         });
         let mut ret = Ring { nodes };
@@ -133,9 +132,7 @@ impl<'a, T> Ring<'a, T> {
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
-    /// let mut ring = Ring::new(vec![
-    ///     Node::new(&"node-1", 1f64),
-    /// ]);
+    /// let mut ring = Ring::new(vec![Node::new(&"node-1", 1f64)]);
     ///
     /// ring.remove_node(&"node-1");
     /// ```
@@ -152,7 +149,9 @@ impl<'a, T> Ring<'a, T> {
             if (n.weight - m.weight).abs() < f64::EPSILON {
                 n.id.cmp(m.id)
             } else {
-                n.weight.partial_cmp(&m.weight).expect("Expected all non-NaN floats.")
+                n.weight
+                    .partial_cmp(&m.weight)
+                    .expect("Expected all non-NaN floats.")
             }
         });
         self.rebalance();
@@ -164,10 +163,7 @@ impl<'a, T> Ring<'a, T> {
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
-    /// let mut ring = Ring::new(vec![
-    ///     Node::new(&"node-1", 1f64),
-    ///     Node::new(&"node-2", 3f64),
-    /// ]);
+    /// let mut ring = Ring::new(vec![Node::new(&"node-1", 1f64), Node::new(&"node-2", 3f64)]);
     ///
     /// ring.remove_node(&"node-2");
     /// ```
@@ -190,9 +186,7 @@ impl<'a, T> Ring<'a, T> {
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
-    /// let mut ring = Ring::new(vec![
-    ///     Node::new(&"node-1", 1f64),
-    /// ]);
+    /// let mut ring = Ring::new(vec![Node::new(&"node-1", 1f64)]);
     ///
     /// assert_eq!(ring.get_node(&"point-1"), &"node-1");
     /// ```
@@ -209,15 +203,13 @@ impl<'a, T> Ring<'a, T> {
                     util::combine_hash(node.hash, point_hash) as f64 * node.relative_weight,
                     node.id,
                 )
-            })
-            .max_by(|n, m| {
+            }).max_by(|n, m| {
                 if n == m {
                     n.1.cmp(m.1)
                 } else {
                     n.0.partial_cmp(&m.0).expect("Expected all non-NaN floats.")
                 }
-            })
-            .expect("Expected non-empty ring.")
+            }).expect("Expected non-empty ring.")
             .1
     }
 
@@ -227,10 +219,7 @@ impl<'a, T> Ring<'a, T> {
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
-    /// let mut ring = Ring::new(vec![
-    ///     Node::new(&"node-1", 1f64),
-    ///     Node::new(&"node-2", 3f64),
-    /// ]);
+    /// let mut ring = Ring::new(vec![Node::new(&"node-1", 1f64), Node::new(&"node-2", 3f64)]);
     ///
     /// assert_eq!(ring.len(), 2);
     /// ```
@@ -244,10 +233,7 @@ impl<'a, T> Ring<'a, T> {
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
-    /// let mut ring = Ring::new(vec![
-    ///     Node::new(&"node-1", 1f64),
-    ///     Node::new(&"node-2", 3f64),
-    /// ]);
+    /// let mut ring = Ring::new(vec![Node::new(&"node-1", 1f64), Node::new(&"node-2", 3f64)]);
     ///
     /// assert_eq!(ring.len(), 2);
     /// ```
@@ -263,10 +249,7 @@ impl<'a, T> Ring<'a, T> {
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
-    /// let mut ring = Ring::new(vec![
-    ///     Node::new(&"node-1", 1f64),
-    ///     Node::new(&"node-2", 3f64),
-    /// ]);
+    /// let mut ring = Ring::new(vec![Node::new(&"node-1", 1f64), Node::new(&"node-2", 3f64)]);
     ///
     /// let mut iterator = ring.iter();
     /// assert_eq!(iterator.next(), Some((&"node-1", 1f64)));
@@ -279,8 +262,8 @@ impl<'a, T> Ring<'a, T> {
 }
 
 impl<'a, T> IntoIterator for &'a Ring<'a, T> {
-    type Item = (&'a T, f64);
     type IntoIter = Box<Iterator<Item = (&'a T, f64)> + 'a>;
+    type Item = (&'a T, f64);
 
     fn into_iter(self) -> Self::IntoIter {
         Box::new(self.iter())
@@ -293,7 +276,12 @@ mod tests {
     macro_rules! assert_approx_eq {
         ($a:expr, $b:expr) => {{
             let (a, b) = (&$a, &$b);
-            assert!((*a - *b).abs() < 1.0e-6, "{} is not approximately equal to {}", *a, *b);
+            assert!(
+                (*a - *b).abs() < 1.0e-6,
+                "{} is not approximately equal to {}",
+                *a,
+                *b
+            );
         }};
     }
 
@@ -372,10 +360,7 @@ mod tests {
 
     #[test]
     fn test_get_node() {
-        let ring = Ring::new(vec![
-            Node::new(&0, 1.0),
-            Node::new(&1, 1.0),
-        ]);
+        let ring = Ring::new(vec![Node::new(&0, 1.0), Node::new(&1, 1.0)]);
 
         assert_eq!(ring.get_node(&0), &0);
         assert_eq!(ring.get_node(&1), &1);

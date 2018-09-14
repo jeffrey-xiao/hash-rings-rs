@@ -213,8 +213,8 @@ impl<'a, T> IntoIterator for &'a Ring<'a, T>
 where
     T: Hash + Eq,
 {
-    type Item = (&'a T, usize);
     type IntoIter = Box<Iterator<Item = (&'a T, usize)> + 'a>;
+    type Item = (&'a T, usize);
 
     fn into_iter(self) -> Self::IntoIter {
         Box::new(self.iter())
@@ -278,7 +278,10 @@ where
 
     fn get_next_node(&mut self, hash: u64) -> Option<(u64, &mut HashSet<&'a U>)> {
         if self.data.range_mut(hash..).next().is_some() {
-            self.data.range_mut(hash..).next().map(|entry| (*entry.0, entry.1))
+            self.data
+                .range_mut(hash..)
+                .next()
+                .map(|entry| (*entry.0, entry.1))
         } else if self.data.iter_mut().next().is_some() {
             self.data.iter_mut().next().map(|entry| (*entry.0, entry.1))
         } else {
@@ -514,8 +517,8 @@ where
     T: Hash + Eq,
     U: Hash + Eq,
 {
-    type Item = (&'a T, Vec<&'a U>);
     type IntoIter = Box<Iterator<Item = (&'a T, Vec<&'a U>)> + 'a>;
+    type Item = (&'a T, Vec<&'a U>);
 
     fn into_iter(self) -> Self::IntoIter {
         Box::new(self.iter())

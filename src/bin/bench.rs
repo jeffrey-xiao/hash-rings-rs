@@ -15,30 +15,23 @@ fn print_node_statistic(id: u64, expected: f64, actual: f64) {
     let error = (expected - actual) / actual;
     println!(
         "{:020} - Expected: {:.6} | Actual: {:.6} | Error: {:9.6}",
-        id,
-        expected,
-        actual,
-        error,
+        id, expected, actual, error,
     );
 }
 
 fn print_bench_statistic(duration: Duration) {
     let total_time = duration.as_secs() as f64 * 1e9 + f64::from(duration.subsec_nanos());
-    let ns_per_operation = total_time / ITEMS as f64;
-    let operations_per_sec = 1e9 / ns_per_operation;
+    let ns_per_op = total_time / ITEMS as f64;
+    let ops_per_ns = 1e9 / ns_per_op;
     println!();
     println!("Total elapsed time:         {:>10.3} ms", total_time / 1e6);
-    println!("Milliseconds per operation: {:>10.3} ns", ns_per_operation);
-    println!("Operations per second:      {:>10.3} op/ms", operations_per_sec);
+    println!("Milliseconds per operation: {:>10.3} ns", ns_per_op);
+    println!("Operations per second:      {:>10.3} op/ms", ops_per_ns);
     println!();
 }
 
 fn bench_carp() {
-    println!(
-        "\nBenching carp hashing ({} nodes, {} items)",
-        NODES,
-        ITEMS,
-    );
+    println!("\nBenching carp hashing ({} nodes, {} items)", NODES, ITEMS);
     let mut rng = XorShiftRng::new_unseeded();
 
     let mut occ_map = HashMap::new();
@@ -80,9 +73,7 @@ fn bench_carp() {
 fn bench_consistent() {
     println!(
         "\nBenching consistent hashing ({} nodes, {} replicas, {} items)",
-        NODES,
-        REPLICAS,
-        ITEMS,
+        NODES, REPLICAS, ITEMS,
     );
     let mut rng = XorShiftRng::new_unseeded();
 
@@ -118,11 +109,7 @@ fn bench_consistent() {
 }
 
 fn bench_jump() {
-    println!(
-        "\nBenching jump hashing ({} nodes, {} items)",
-        NODES,
-        ITEMS,
-    );
+    println!("\nBenching jump hashing ({} nodes, {} items)", NODES, ITEMS,);
     let mut rng = XorShiftRng::new_unseeded();
 
     let mut occ_map = HashMap::new();
@@ -139,11 +126,7 @@ fn bench_jump() {
     }
 
     for i in 0..NODES as u32 {
-        print_node_statistic(
-            u64::from(i),
-            1.0 / NODES as f64,
-            occ_map[&i] / ITEMS as f64,
-        );
+        print_node_statistic(u64::from(i), 1.0 / NODES as f64, occ_map[&i] / ITEMS as f64);
     }
     print_bench_statistic(start.elapsed());
 }
@@ -151,8 +134,7 @@ fn bench_jump() {
 fn bench_maglev() {
     println!(
         "\nBenching maglev hashing ({} nodes, {} items)",
-        NODES,
-        ITEMS,
+        NODES, ITEMS,
     );
     let mut rng = XorShiftRng::new_unseeded();
 
@@ -187,9 +169,7 @@ fn bench_maglev() {
 fn bench_mpc() {
     println!(
         "\nBenching mpc hashing ({} nodes, {} probes, {} items)",
-        NODES,
-        HASH_COUNT,
-        ITEMS,
+        NODES, HASH_COUNT, ITEMS,
     );
     let mut rng = XorShiftRng::new_unseeded();
 
@@ -226,8 +206,7 @@ fn bench_mpc() {
 fn bench_rendezvous() {
     println!(
         "\nBenching rendezvous hashing ({} nodes, {} items)",
-        NODES,
-        ITEMS,
+        NODES, ITEMS,
     );
     let mut rng = XorShiftRng::new_unseeded();
 
@@ -252,11 +231,7 @@ fn bench_rendezvous() {
     }
 
     for node in &nodes {
-        print_node_statistic(
-            *node,
-            1.0 / NODES as f64,
-            occ_map[&node] / ITEMS as f64,
-        );
+        print_node_statistic(*node, 1.0 / NODES as f64, occ_map[&node] / ITEMS as f64);
     }
     print_bench_statistic(start.elapsed());
 }
@@ -264,8 +239,7 @@ fn bench_rendezvous() {
 fn bench_weighted_rendezvous() {
     println!(
         "\nBenching weighted rendezvous hashing ({} nodes, {} items)",
-        NODES,
-        ITEMS,
+        NODES, ITEMS,
     );
     let mut rng = XorShiftRng::new_unseeded();
 

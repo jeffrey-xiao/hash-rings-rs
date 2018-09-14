@@ -92,7 +92,8 @@ where
     }
 
     fn get_next_hash(&self, hash: u64) -> u64 {
-        let next_hash_opt = self.nodes
+        let next_hash_opt = self
+            .nodes
             .range(hash..)
             .next()
             .or_else(|| self.nodes.iter().next())
@@ -159,8 +160,7 @@ where
                 let hash = hashes[0].wrapping_add((i as u64).wrapping_mul(hashes[1]) % PRIME);
                 let next_hash = self.get_next_hash(hash);
                 (Self::get_distance(hash, next_hash), next_hash)
-            })
-            .min()
+            }).min()
             .expect("Error: expected positive hash count.");
 
         self.nodes[&hash.1]
@@ -220,8 +220,8 @@ impl<'a, T> IntoIterator for &'a Ring<'a, T>
 where
     T: Hash + Eq,
 {
-    type Item = (&'a T);
     type IntoIter = Box<Iterator<Item = &'a T> + 'a>;
+    type Item = (&'a T);
 
     fn into_iter(self) -> Self::IntoIter {
         Box::new(self.iter())
