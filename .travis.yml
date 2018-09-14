@@ -26,6 +26,9 @@ addons:
       - binutils-dev
       - libiberty-dev
 
+before_script:
+  - rustup component add rustfmt-preview
+
 script:
   - cargo fmt --verbose --all -- --check
   - cargo build --verbose --all
