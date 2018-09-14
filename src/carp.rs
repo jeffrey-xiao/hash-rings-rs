@@ -26,6 +26,7 @@ where
     /// Constructs a new node with a particular weight associated with it.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
@@ -96,6 +97,7 @@ impl<'a, T> Ring<'a, T> {
     /// Constructs a new, empty `Ring<T>`.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::carp::Ring;
     ///
@@ -129,6 +131,7 @@ impl<'a, T> Ring<'a, T> {
     /// than a node with a weight of one.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
@@ -160,6 +163,7 @@ impl<'a, T> Ring<'a, T> {
     /// Removes a node from the ring.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
@@ -180,9 +184,11 @@ impl<'a, T> Ring<'a, T> {
     /// Returns the node associated with a point.
     ///
     /// # Panics
+    ///
     /// Panics if the ring is empty.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
@@ -216,6 +222,7 @@ impl<'a, T> Ring<'a, T> {
     /// Returns the number of nodes in the ring.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
@@ -230,6 +237,7 @@ impl<'a, T> Ring<'a, T> {
     /// Removes a node from the ring.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
@@ -246,6 +254,7 @@ impl<'a, T> Ring<'a, T> {
     /// particular order.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///

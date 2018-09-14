@@ -43,6 +43,7 @@ where
     /// Constructs a new, empty `Ring<T>`.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::weighted_rendezvous::Ring;
     ///
@@ -61,6 +62,7 @@ where
     /// than a node with a weight of one.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::weighted_rendezvous::Ring;
     ///
@@ -77,6 +79,7 @@ where
     /// Removes a node from the ring.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::weighted_rendezvous::Ring;
     ///
@@ -93,9 +96,11 @@ where
     /// Returns the node associated with a point.
     ///
     /// # Panics
+    ///
     /// Panics if the ring is empty.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::weighted_rendezvous::Ring;
     ///
@@ -130,6 +135,7 @@ where
     /// Returns the number of nodes in the ring.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::weighted_rendezvous::Ring;
     ///
@@ -145,6 +151,7 @@ where
     /// Returns `true` if the ring is empty.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::weighted_rendezvous::Ring;
     ///
@@ -162,6 +169,7 @@ where
     /// particular order.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::weighted_rendezvous::Ring;
     ///
@@ -236,6 +244,7 @@ where
     /// Constructs a new, empty `Client<T, U>`.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::weighted_rendezvous::Client;
     ///
@@ -256,6 +265,7 @@ where
     /// than a node with a weight of one.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::weighted_rendezvous::Client;
     ///
@@ -293,9 +303,11 @@ where
     /// Removes a node from the ring.
     ///
     /// # Panics
+    ///
     /// Panics if the ring is empty after removal of a node or if the node does not exist.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::weighted_rendezvous::Client;
     ///
@@ -330,9 +342,11 @@ where
     /// Returns the points associated with a node.
     ///
     /// # Panics
+    ///
     /// Panics if the node does not exist.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::weighted_rendezvous::Client;
     ///
@@ -349,9 +363,11 @@ where
     /// Returns the node associated with a point.
     ///
     /// # Panics
+    ///
     /// Panics if the ring is empty.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::weighted_rendezvous::Client;
     ///
@@ -368,9 +384,11 @@ where
     /// Inserts a point into the ring.
     ///
     /// # Panics
+    ///
     /// Panics if the ring is empty.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::weighted_rendezvous::Client;
     ///
@@ -395,9 +413,11 @@ where
     /// Removes a point from the ring.
     ///
     /// # Panics
+    ///
     /// Panics if the ring is empty.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::weighted_rendezvous::Client;
     ///
@@ -418,6 +438,7 @@ where
     /// Returns the number of nodes in the ring.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::weighted_rendezvous::Client;
     ///
@@ -433,6 +454,7 @@ where
     /// Returns `true` if the ring is empty.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::weighted_rendezvous::Client;
     ///
@@ -450,6 +472,7 @@ where
     /// particular order.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::weighted_rendezvous::Client;
     ///

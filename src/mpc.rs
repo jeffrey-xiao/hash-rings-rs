@@ -77,6 +77,7 @@ where
     /// Constructs a new, empty `Ring<T>` that hashes `hash_count` times when a key is inserted.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::mpc::Ring;
     ///
@@ -111,6 +112,7 @@ where
     /// points than a node with one replica.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::mpc::Ring;
     ///
@@ -124,6 +126,7 @@ where
     /// Removes a node.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::mpc::Ring;
     ///
@@ -139,9 +142,11 @@ where
     /// Returns the node associated with a point.
     ///
     /// # Panics
+    ///
     /// Panics if the ring is empty.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::mpc::Ring;
     ///
@@ -169,6 +174,7 @@ where
     /// Returns the number of nodes in the ring.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::mpc::Ring;
     ///
@@ -184,6 +190,7 @@ where
     /// Returns `true` if the ring is empty.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::mpc::Ring;
     ///
@@ -201,6 +208,7 @@ where
     /// particular order.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::mpc::Ring;
     ///

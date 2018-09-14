@@ -48,6 +48,7 @@ where
     /// Constructs a new, empty `Ring<T>`.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::consistent::Ring;
     ///
@@ -75,6 +76,7 @@ where
     /// points than a node with one replica.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::consistent::Ring;
     ///
@@ -95,6 +97,7 @@ where
     /// Removes a node and all its replicas from the ring.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::consistent::Ring;
     ///
@@ -125,9 +128,11 @@ where
     /// Returns the node associated with a point.
     ///
     /// # Panics
+    ///
     /// Panics if the ring is empty.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::consistent::Ring;
     ///
@@ -159,6 +164,7 @@ where
     /// Returns the number of nodes in the ring.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::consistent::Ring;
     ///
@@ -174,6 +180,7 @@ where
     /// Returns `true` if the ring is empty.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::consistent::Ring;
     ///
@@ -191,6 +198,7 @@ where
     /// no particular order.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::consistent::Ring;
     ///
@@ -264,6 +272,7 @@ where
     /// Constructs a new, empty `Client<T, U>`.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::consistent::Client;
     ///
@@ -296,6 +305,7 @@ where
     /// points than a node with one replica.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::consistent::Client;
     ///
@@ -335,9 +345,11 @@ where
     /// Removes a node and all its replicas from the ring.
     ///
     /// # Panics
+    ///
     /// Panics if the ring is empty after removal of a node or if the node does not exist.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::consistent::Client;
     ///
@@ -367,9 +379,11 @@ where
     /// Returns the points associated with a node and its replicas.
     ///
     /// # Panics
+    ///
     /// Panics if the node does not exist.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::consistent::Client;
     ///
@@ -393,9 +407,11 @@ where
     /// Returns the node associated with a point.
     ///
     /// # Panics
+    ///
     /// Panics if the ring is empty.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::consistent::Client;
     ///
@@ -412,9 +428,11 @@ where
     /// Inserts a point into the ring.
     ///
     /// # Panics
+    ///
     /// Panics if the ring is empty.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::consistent::Client;
     ///
@@ -434,9 +452,11 @@ where
     /// Removes a point from the ring.
     ///
     /// # Panics
+    ///
     /// Panics if the ring is empty.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::consistent::Client;
     ///
@@ -457,6 +477,7 @@ where
     /// Returns the number of nodes in the ring.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::consistent::Client;
     ///
@@ -472,6 +493,7 @@ where
     /// Returns `true` if the ring is empty.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::consistent::Client;
     ///
@@ -489,6 +511,7 @@ where
     /// particular order.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::consistent::Client;
     ///

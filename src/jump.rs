@@ -30,9 +30,11 @@ impl Ring {
     /// Constructs a new `Ring<T>` with a specified number of nodes.
     ///
     /// # Panics
+    ///
     /// Panics if the number of nodes is zero.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::jump::Ring;
     ///
@@ -46,6 +48,7 @@ impl Ring {
     /// Returns the node associated with a key.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::jump::Ring;
     ///
@@ -72,6 +75,7 @@ impl Ring {
     /// Returns the number of nodes in the ring.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::jump::Ring;
     ///

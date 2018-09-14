@@ -45,6 +45,7 @@ where
     /// Constructs a new `Ring<T>` with a specified list of nodes.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::maglev::Ring;
     ///
@@ -62,6 +63,7 @@ where
     /// rebuilt with the same capacity.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::maglev::Ring;
     ///
@@ -129,6 +131,7 @@ where
     /// Returns the number of nodes in the ring.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::maglev::Ring;
     ///
@@ -143,6 +146,7 @@ where
     /// ring should be rebuilt with the same capacity.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::maglev::Ring;
     ///
@@ -156,6 +160,7 @@ where
     /// Returns the node associated with a key.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::maglev::Ring;
     ///
@@ -173,6 +178,7 @@ where
     /// Returns an iterator over the ring. The iterator will yield the nodes in the ring.
     ///
     /// # Examples
+    ///
     /// ```
     /// use hash_rings::maglev::Ring;
     ///
