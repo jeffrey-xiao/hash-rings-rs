@@ -109,7 +109,7 @@ fn bench_consistent() {
 }
 
 fn bench_jump() {
-    println!("\nBenching jump hashing ({} nodes, {} items)", NODES, ITEMS,);
+    println!("\nBenching jump hashing ({} nodes, {} items)", NODES, ITEMS);
     let mut rng = XorShiftRng::new_unseeded();
 
     let mut occ_map = HashMap::new();
