@@ -320,7 +320,7 @@ where
     pub fn remove_node(&mut self, id: &T) {
         self.ring.remove_node(id);
         if self.ring.is_empty() {
-            panic!("Error: empty ring after deletion");
+            panic!("Error: empty ring after deletion.");
         }
         if let Some(points) = self.nodes.remove(id) {
             for point in points {
