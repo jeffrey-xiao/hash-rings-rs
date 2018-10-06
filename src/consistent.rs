@@ -606,7 +606,6 @@ mod tests {
         client.remove_point(&0);
     }
 
-    #[derive(PartialEq, Eq)]
     pub struct Key(pub u32);
     impl Hash for Key {
         fn hash<H>(&self, state: &mut H)
@@ -616,6 +615,14 @@ mod tests {
             state.write_u32(self.0 / 2);
         }
     }
+
+    impl PartialEq for Key {
+        fn eq(&self, other: &Key) -> bool {
+            self.0 == other.0
+        }
+    }
+
+    impl Eq for Key {}
 
     #[test]
     fn test_insert_node_replace_node() {

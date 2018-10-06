@@ -313,9 +313,9 @@ mod tests {
         assert_eq!(ring.nodes[0].id, &2);
         assert_eq!(ring.nodes[1].id, &0);
         assert_eq!(ring.nodes[2].id, &1);
-        assert_approx_eq!(ring.nodes[0].relative_weight, 0.7745967);
-        assert_approx_eq!(ring.nodes[1].relative_weight, 1.0000000);
-        assert_approx_eq!(ring.nodes[2].relative_weight, 1.0000000);
+        assert_approx_eq!(ring.nodes[0].relative_weight, 0.774_596);
+        assert_approx_eq!(ring.nodes[1].relative_weight, 1.000_000);
+        assert_approx_eq!(ring.nodes[2].relative_weight, 1.000_000);
     }
 
     #[test]
@@ -328,8 +328,8 @@ mod tests {
 
         assert_eq!(ring.nodes[0].id, &0);
         assert_eq!(ring.nodes[1].id, &1);
-        assert_approx_eq!(ring.nodes[0].relative_weight, 1.0000000);
-        assert_approx_eq!(ring.nodes[1].relative_weight, 1.0000000);
+        assert_approx_eq!(ring.nodes[0].relative_weight, 1.000_000);
+        assert_approx_eq!(ring.nodes[1].relative_weight, 1.000_000);
     }
 
     #[test]
@@ -339,8 +339,8 @@ mod tests {
 
         assert_eq!(ring.nodes[0].id, &0);
         assert_eq!(ring.nodes[1].id, &1);
-        assert_approx_eq!(ring.nodes[0].relative_weight, 1.0000000);
-        assert_approx_eq!(ring.nodes[1].relative_weight, 1.0000000);
+        assert_approx_eq!(ring.nodes[0].relative_weight, 1.000_000);
+        assert_approx_eq!(ring.nodes[1].relative_weight, 1.000_000);
     }
 
     #[test]
@@ -350,8 +350,8 @@ mod tests {
 
         assert_eq!(ring.nodes[0].id, &0);
         assert_eq!(ring.nodes[1].id, &1);
-        assert_approx_eq!(ring.nodes[0].relative_weight, 1.0000000);
-        assert_approx_eq!(ring.nodes[1].relative_weight, 1.0000000);
+        assert_approx_eq!(ring.nodes[0].relative_weight, 1.000_000);
+        assert_approx_eq!(ring.nodes[1].relative_weight, 1.000_000);
     }
 
     #[test]
@@ -365,8 +365,8 @@ mod tests {
 
         assert_eq!(ring.nodes[0].id, &0);
         assert_eq!(ring.nodes[1].id, &1);
-        assert_approx_eq!(ring.nodes[0].relative_weight, 1.0000000);
-        assert_approx_eq!(ring.nodes[1].relative_weight, 1.0000000);
+        assert_approx_eq!(ring.nodes[0].relative_weight, 1.000_000);
+        assert_approx_eq!(ring.nodes[1].relative_weight, 1.000_000);
     }
 
     #[test]
