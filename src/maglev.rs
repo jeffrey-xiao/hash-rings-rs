@@ -102,7 +102,8 @@ where
                 let offset = Self::get_hash(hashers[0], node) % m;
                 let skip = (Self::get_hash(hashers[1], node) % (m - 1)) + 1;
                 (0..m).map(|i| (offset + i * skip) % m).collect()
-            }).collect();
+            })
+            .collect();
 
         let mut next: Vec<usize> = iter::repeat(0).take(n).collect();
         let mut entry: Vec<usize> = iter::repeat(<usize>::max_value()).take(m).collect();

@@ -122,13 +122,15 @@ where
                     -entry.1 / (hash as f64 / u64::max_value() as f64).ln(),
                     entry.0,
                 )
-            }).max_by(|n, m| {
+            })
+            .max_by(|n, m| {
                 if n == m {
                     n.1.cmp(m.1)
                 } else {
                     n.0.partial_cmp(&m.0).expect("Expected all non-NaN floats.")
                 }
-            }).expect("Expected non-empty ring.")
+            })
+            .expect("Expected non-empty ring.")
             .1
     }
 

@@ -209,13 +209,15 @@ impl<'a, T> Ring<'a, T> {
                     util::combine_hash(node.hash, point_hash) as f64 * node.relative_weight,
                     node.id,
                 )
-            }).max_by(|n, m| {
+            })
+            .max_by(|n, m| {
                 if n == m {
                     n.1.cmp(m.1)
                 } else {
                     n.0.partial_cmp(&m.0).expect("Expected all non-NaN floats.")
                 }
-            }).expect("Expected non-empty ring.")
+            })
+            .expect("Expected non-empty ring.")
             .1
     }
 

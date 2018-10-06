@@ -130,7 +130,8 @@ where
                         .expect("Expected non-zero number of replicas."),
                     entry.0,
                 )
-            }).max()
+            })
+            .max()
             .expect("Expected non-empty ring.")
             .1
     }
