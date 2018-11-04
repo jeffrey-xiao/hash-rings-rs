@@ -181,6 +181,10 @@ Milliseconds per operation:  22330.205 ns
 Operations per second:       44782.393 op/ms
 ```
 
+## Changelog
+
+See [CHANGELOG](CHANGELOG.md) for more details.
+
 ## References
 
  - [A Fast, Minimal Memory, Consistent Hash Algorithm](https://arxiv.org/abs/1406.2294)
