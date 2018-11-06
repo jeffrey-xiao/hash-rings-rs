@@ -192,7 +192,7 @@ where
     /// assert_eq!(iterator.next(), None);
     /// ```
     pub fn iter(&'a self) -> impl Iterator<Item = &'a T> {
-        self.nodes.iter().map(|node| *node)
+        self.nodes.iter().cloned()
     }
 }
 

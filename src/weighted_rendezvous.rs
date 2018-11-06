@@ -359,7 +359,7 @@ where
     /// assert_eq!(client.get_points(&"node-1"), [&"point-1"]);
     /// ```
     pub fn get_points(&mut self, id: &T) -> Vec<&U> {
-        self.nodes[id].iter().map(|point| *point).collect()
+        self.nodes[id].iter().cloned().collect()
     }
 
     /// Returns the node associated with a point.
@@ -489,7 +489,7 @@ where
     pub fn iter(&'a self) -> impl Iterator<Item = (&'a T, Vec<&'a U>)> {
         Box::new(self.nodes.iter().map(move |node_entry| {
             let (node_id, points) = node_entry;
-            (&**node_id, points.iter().map(|point| *point).collect())
+            (&**node_id, points.iter().cloned().collect())
         }))
     }
 }
