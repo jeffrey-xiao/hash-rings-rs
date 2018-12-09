@@ -21,10 +21,7 @@ use std::iter;
 /// assert_eq!(ring.nodes(), 3);
 /// assert_eq!(ring.capacity(), 307);
 /// ```
-pub struct Ring<'a, T>
-where
-    T: 'a,
-{
+pub struct Ring<'a, T> {
     nodes: Vec<&'a T>,
     lookup: Vec<usize>,
     hasher: SipHasher,
@@ -200,7 +197,7 @@ impl<'a, T> IntoIterator for &'a Ring<'a, T>
 where
     T: Hash + Eq,
 {
-    type IntoIter = Box<Iterator<Item = &'a T> + 'a>;
+    type IntoIter = Box<dyn Iterator<Item = &'a T> + 'a>;
     type Item = (&'a T);
 
     fn into_iter(self) -> Self::IntoIter {
@@ -215,7 +212,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_new_empty() {
-        let _ring: Ring<u32> = Ring::new(vec![]);
+        let _ring: Ring<'_, u32> = Ring::new(vec![]);
     }
 
     #[test]

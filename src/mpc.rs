@@ -1,10 +1,10 @@
 //! Hashing ring implemented using multi-probe consistent hashing.
 
+use crate::util;
 use rand::{Rng, XorShiftRng};
 use siphasher::sip::SipHasher;
 use std::collections::BTreeMap;
 use std::hash::{Hash, Hasher};
-use util;
 
 const PRIME: u64 = 0xFFFF_FFFF_FFFF_FFC5;
 
@@ -32,10 +32,7 @@ const PRIME: u64 = 0xFFFF_FFFF_FFFF_FFC5;
 /// assert_eq!(iterator.next(), Some(&"node-2"));
 /// assert_eq!(iterator.next(), None);
 /// ```
-pub struct Ring<'a, T>
-where
-    T: 'a,
-{
+pub struct Ring<'a, T> {
     nodes: BTreeMap<u64, &'a T>,
     hash_count: u64,
     hashers: [SipHasher; 2],
@@ -229,7 +226,7 @@ impl<'a, T> IntoIterator for &'a Ring<'a, T>
 where
     T: Hash + Eq,
 {
-    type IntoIter = Box<Iterator<Item = &'a T> + 'a>;
+    type IntoIter = Box<dyn Iterator<Item = &'a T> + 'a>;
     type Item = (&'a T);
 
     fn into_iter(self) -> Self::IntoIter {
@@ -244,13 +241,13 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_new_zero_hash_count() {
-        let _ring: Ring<u32> = Ring::new(0);
+        let _ring: Ring<'_, u32> = Ring::new(0);
     }
 
     #[test]
     #[should_panic]
     fn test_get_node_empty_ring() {
-        let ring: Ring<u32> = Ring::new(2);
+        let ring: Ring<'_, u32> = Ring::new(2);
         ring.get_node(&0);
     }
 

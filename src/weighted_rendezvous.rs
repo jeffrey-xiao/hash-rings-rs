@@ -1,9 +1,9 @@
 //! Hashing ring implemented using weighted rendezvous hashing.
 
+use crate::util;
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::vec::Vec;
-use util;
 
 /// A hashing ring implemented using weighted rendezvous hashing.
 ///
@@ -29,10 +29,7 @@ use util;
 /// assert_eq!(iterator.next(), Some((&"node-2", 3f64)));
 /// assert_eq!(iterator.next(), None);
 /// ```
-pub struct Ring<'a, T>
-where
-    T: 'a,
-{
+pub struct Ring<'a, T> {
     nodes: HashMap<&'a T, f64>,
 }
 
@@ -194,7 +191,7 @@ impl<'a, T> IntoIterator for &'a Ring<'a, T>
 where
     T: Hash + Ord,
 {
-    type IntoIter = Box<Iterator<Item = (&'a T, f64)> + 'a>;
+    type IntoIter = Box<dyn Iterator<Item = (&'a T, f64)> + 'a>;
     type Item = (&'a T, f64);
 
     fn into_iter(self) -> Self::IntoIter {
@@ -228,11 +225,7 @@ where
 /// client.remove_point(&"point-2");
 /// assert_eq!(client.get_points(&"node-1"), [&"point-1"]);
 /// ```
-pub struct Client<'a, T, U>
-where
-    T: 'a,
-    U: 'a,
-{
+pub struct Client<'a, T, U> {
     ring: Ring<'a, T>,
     nodes: HashMap<&'a T, HashSet<&'a U>>,
     points: HashMap<&'a U, (&'a T, f64)>,
@@ -499,7 +492,7 @@ where
     T: Hash + Ord,
     U: Hash + Eq,
 {
-    type IntoIter = Box<Iterator<Item = (&'a T, Vec<&'a U>)> + 'a>;
+    type IntoIter = Box<dyn Iterator<Item = (&'a T, Vec<&'a U>)> + 'a>;
     type Item = (&'a T, Vec<&'a U>);
 
     fn into_iter(self) -> Self::IntoIter {
@@ -523,7 +516,7 @@ mod tests {
 
     #[test]
     fn test_size_empty() {
-        let client: Client<u32, u32> = Client::new();
+        let client: Client<'_, u32, u32> = Client::new();
         assert!(client.is_empty());
         assert_eq!(client.len(), 0);
     }
@@ -531,7 +524,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_panic_remove_node_empty_client() {
-        let mut client: Client<u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32> = Client::new();
         client.insert_node(&0, 1f64);
         client.remove_node(&0);
     }
@@ -539,34 +532,34 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_panic_remove_node_non_existent_node() {
-        let mut client: Client<u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32> = Client::new();
         client.remove_node(&0);
     }
 
     #[test]
     #[should_panic]
     fn test_panic_get_node_empty_client() {
-        let mut client: Client<u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32> = Client::new();
         client.get_node(&0);
     }
 
     #[test]
     #[should_panic]
     fn test_panic_insert_point_empty_client() {
-        let mut client: Client<u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32> = Client::new();
         client.insert_point(&0);
     }
 
     #[test]
     #[should_panic]
     fn test_panic_remove_point_empty_client() {
-        let mut client: Client<u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32> = Client::new();
         client.remove_point(&0);
     }
 
     #[test]
     fn test_insert_node() {
-        let mut client: Client<u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32> = Client::new();
         client.insert_node(&0, 0f64);
         client.insert_point(&0);
         client.insert_node(&1, 1f64);
@@ -575,7 +568,7 @@ mod tests {
 
     #[test]
     fn test_remove_node() {
-        let mut client: Client<u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32> = Client::new();
         client.insert_node(&0, 1f64);
         client.insert_point(&0);
         client.insert_point(&1);
@@ -592,7 +585,7 @@ mod tests {
 
     #[test]
     fn test_get_node() {
-        let mut client: Client<u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32> = Client::new();
         client.insert_node(&0, 3f64);
         client.insert_node(&1, 0f64);
         client.insert_node(&2, 0f64);
@@ -601,7 +594,7 @@ mod tests {
 
     #[test]
     fn test_insert_point() {
-        let mut client: Client<u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32> = Client::new();
         client.insert_node(&0, 3f64);
         client.insert_point(&0);
         assert_eq!(client.get_points(&0).as_slice(), [&0u32]);
@@ -609,7 +602,7 @@ mod tests {
 
     #[test]
     fn test_remove_point() {
-        let mut client: Client<u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32> = Client::new();
         client.insert_node(&0, 3f64);
         client.insert_point(&0);
         client.remove_point(&0);
@@ -619,7 +612,7 @@ mod tests {
 
     #[test]
     fn test_iter() {
-        let mut client: Client<u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32> = Client::new();
         client.insert_node(&0, 3f64);
         client.insert_point(&1);
         client.insert_point(&2);
@@ -642,7 +635,7 @@ mod tests {
 
     #[test]
     fn test_ring_iter() {
-        let mut ring: Ring<u32> = Ring::new();
+        let mut ring: Ring<'_, u32> = Ring::new();
 
         ring.insert_node(&0, 1.0f64);
         let mut iterator = ring.iter();

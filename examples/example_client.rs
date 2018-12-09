@@ -1,5 +1,3 @@
-extern crate hash_rings;
-
 use hash_rings::consistent::Client;
 
 fn main() {

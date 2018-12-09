@@ -1,7 +1,7 @@
 //! Hashing ring implemented using jump hashing.
 
+use crate::util;
 use std::hash::Hash;
-use util;
 
 /// A hashing ring implemented using jump hashing.
 ///

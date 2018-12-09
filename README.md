@@ -14,8 +14,6 @@
 ### Example Ring Usage
 
 ```rust
-extern crate hash_rings;
-
 use hash_rings::consistent::Ring;
 
 fn main() {
@@ -31,8 +29,6 @@ fn main() {
 ### Example Client Usage
 
 ```rust
-extern crate hash_rings;
-
 use hash_rings::consistent::Client;
 
 fn main() {
@@ -54,7 +50,7 @@ Add this to your `Cargo.toml`:
 [dependencies]
 hash-rings = "*"
 ```
-and this to your crate root:
+and this to your crate root if you are using Rust 2015:
 ```rust
 extern crate hash_rings;
 ```

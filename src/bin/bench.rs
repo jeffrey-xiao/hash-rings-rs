@@ -1,6 +1,3 @@
-extern crate hash_rings;
-extern crate rand;
-
 use hash_rings::{carp, consistent, jump, maglev, mpc, rendezvous, weighted_rendezvous};
 use rand::{Rng, XorShiftRng};
 use std::collections::HashMap;

@@ -12,6 +12,7 @@ Implementations of various hash rings.
 categories = ["data-structures"]
 keywords = ["hash", "data-structures"]
 include = ["src/**/*", "Cargo.toml"]
+edition = "2018"
 
 [badges]
 travis-ci = { repository = "jeffrey-xiao/hash-rings-rs", branch = "master" }

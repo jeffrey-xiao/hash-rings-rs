@@ -1,18 +1,15 @@
 //! Hashing ring implemented using the Cache Ring Routing Protocol.
 
+use crate::util;
 use std::f64;
 use std::hash::Hash;
-use util;
 
 /// A node with an associated weight.
 ///
 /// The distribution of points to nodes is proportional to the weights of the nodes. For example, a
 /// node with a weight of 3 will receive approximately three times more points than a node with a
 /// weight of 1.
-pub struct Node<'a, T>
-where
-    T: 'a,
-{
+pub struct Node<'a, T> {
     id: &'a T,
     hash: u64,
     weight: f64,
@@ -62,10 +59,7 @@ where
 /// assert_eq!(iterator.next(), Some((&"node-2", 3f64)));
 /// assert_eq!(iterator.next(), None);
 /// ```
-pub struct Ring<'a, T>
-where
-    T: 'a,
-{
+pub struct Ring<'a, T> {
     nodes: Vec<Node<'a, T>>,
 }
 
@@ -273,7 +267,7 @@ impl<'a, T> Ring<'a, T> {
 }
 
 impl<'a, T> IntoIterator for &'a Ring<'a, T> {
-    type IntoIter = Box<Iterator<Item = (&'a T, f64)> + 'a>;
+    type IntoIter = Box<dyn Iterator<Item = (&'a T, f64)> + 'a>;
     type Item = (&'a T, f64);
 
     fn into_iter(self) -> Self::IntoIter {
@@ -298,7 +292,7 @@ mod tests {
 
     #[test]
     fn test_size_empty() {
-        let ring: Ring<u32> = Ring::new(vec![]);
+        let ring: Ring<'_, u32> = Ring::new(vec![]);
         assert!(ring.is_empty());
         assert_eq!(ring.len(), 0);
     }

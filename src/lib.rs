@@ -14,8 +14,6 @@
 //! ### Example Ring Usage
 //!
 //! ```rust
-//! extern crate hash_rings;
-//!
 //! use hash_rings::consistent::Ring;
 //!
 //! fn main() {
@@ -31,8 +29,6 @@
 //! ### Example Client Usage
 //!
 //! ```rust
-//! extern crate hash_rings;
-//!
 //! use hash_rings::consistent::Client;
 //!
 //! fn main() {
@@ -54,7 +50,7 @@
 //! [dependencies]
 //! hash-rings = "*"
 //! ```
-//! and this to your crate root:
+//! and this to your crate root if you are using Rust 2015:
 //! ```rust
 //! extern crate hash_rings;
 //! ```
@@ -181,6 +177,10 @@
 //! Operations per second:       44782.393 op/ms
 //! ```
 //!
+//! ## Changelog
+//!
+//! See [CHANGELOG](CHANGELOG.md) for more details.
+//!
 //! ## References
 //!
 //!  - [A Fast, Minimal Memory, Consistent Hash Algorithm](https://arxiv.org/abs/1406.2294)
@@ -205,10 +205,6 @@
 //! See [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT) for more details.
 
 #![warn(missing_docs)]
-
-extern crate primal;
-extern crate rand;
-extern crate siphasher;
 
 pub mod carp;
 pub mod consistent;
