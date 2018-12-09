@@ -36,8 +36,8 @@ script:
   - cargo +nightly-2018-12-06 fmt --verbose --all -- --verbose --check
   - cargo +nightly-2018-12-06 clippy --verbose --all-targets
   - cargo test --verbose --all-targets
-  - cargo run --verbose --example example_ring
-  - cargo run --verbose --example example_client
+  - cargo run --verbose --example ring
+  - cargo run --verbose --example client
 
 after_success:
   - |
