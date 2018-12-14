@@ -7,7 +7,11 @@
 [![Build Status](https://travis-ci.org/jeffrey-xiao/hash-rings-rs.svg?branch=master)](https://travis-ci.org/jeffrey-xiao/hash-rings-rs)
 [![codecov](https://codecov.io/gh/jeffrey-xiao/hash-rings-rs/branch/master/graph/badge.svg)](https://codecov.io/gh/jeffrey-xiao/hash-rings-rs)
 
-`hash-rings` contains implementations for seven different hash ring algorithms: Cache Array Routing Protocol, Consistent Hashing, Multi-Probe Consistent Hashing, Rendezvous Hashing, Weighted Rendezvous Hashing, Maglev Hashing, and Jump Hashing. It also provides clients for Consistent Hashing, Rendezvous Hashing, and Weighted Rendezvous Hashing to efficiently redistribute items as nodes are inserted and removed from the ring.
+`hash-rings` contains implementations for seven different hash ring algorithms: Cache Array Routing
+Protocol, Consistent Hashing, Multi-Probe Consistent Hashing, Rendezvous Hashing, Weighted
+Rendezvous Hashing, Maglev Hashing, and Jump Hashing. It also provides clients for Consistent
+Hashing, Rendezvous Hashing, and Weighted Rendezvous Hashing to efficiently redistribute items as
+nodes are inserted and removed from the ring.
 
 ## Examples
 

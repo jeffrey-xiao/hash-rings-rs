@@ -7,7 +7,11 @@
 //! [![Build Status](https://travis-ci.org/jeffrey-xiao/hash-rings-rs.svg?branch=master)](https://travis-ci.org/jeffrey-xiao/hash-rings-rs)
 //! [![codecov](https://codecov.io/gh/jeffrey-xiao/hash-rings-rs/branch/master/graph/badge.svg)](https://codecov.io/gh/jeffrey-xiao/hash-rings-rs)
 //!
-//! `hash-rings` contains implementations for seven different hash ring algorithms: Cache Array Routing Protocol, Consistent Hashing, Multi-Probe Consistent Hashing, Rendezvous Hashing, Weighted Rendezvous Hashing, Maglev Hashing, and Jump Hashing. It also provides clients for Consistent Hashing, Rendezvous Hashing, and Weighted Rendezvous Hashing to efficiently redistribute items as nodes are inserted and removed from the ring.
+//! `hash-rings` contains implementations for seven different hash ring algorithms: Cache Array
+//! Routing Protocol, Consistent Hashing, Multi-Probe Consistent Hashing, Rendezvous Hashing,
+//! Weighted Rendezvous Hashing, Maglev Hashing, and Jump Hashing. It also provides clients for
+//! Consistent Hashing, Rendezvous Hashing, and Weighted Rendezvous Hashing to efficiently
+//! redistribute items as nodes are inserted and removed from the ring.
 //!
 //! ## Examples
 //!
@@ -186,15 +190,18 @@
 //!  - [A Fast, Minimal Memory, Consistent Hash Algorithm](https://arxiv.org/abs/1406.2294)
 //!  > Lamping, John, and Eric Veach. 2014. “A Fast, Minimal Memory, Consistent Hash Algorithm.” *CoRR* abs/1406.2294. <http://arxiv.org/abs/1406.2294>.
 //!  - [Cache Array Routing Protocol](https://tools.ietf.org/html/draft-vinod-carp-v1-03)
-//!  - [Consistent hashing and random trees: distributed caching protocols for relieving hot spots on the World Wide Web](https://dl.acm.org/citation.cfm?id=258660)
+//!  - [Consistent hashing and random trees: distributed caching protocols for relieving hot spots
+//!    on the World Wide Web](https://dl.acm.org/citation.cfm?id=258660)
 //!  > Karger, David, Eric Lehman, Tom Leighton, Rina Panigrahy, Matthew Levine, and Daniel Lewin. 1997. “Consistent Hashing and Random Trees: Distributed Caching Protocols for Relieving Hot Spots on the World Wide Web.” In *Proceedings of the Twenty-Ninth Annual Acm Symposium on Theory of Computing*, 654–63. STOC ’97. New York, NY, USA: ACM. doi:[10.1145/258533.258660](https://doi.org/10.1145/258533.258660).
-//!  - [Maglev: A Fast and Reliable Software Network Load Balancer](https://research.google.com/pubs/pub44824.html)
+//!  - [Maglev: A Fast and Reliable Software Network Load
+//!    Balancer](https://research.google.com/pubs/pub44824.html)
 //!  > Eisenbud, Daniel E., Cheng Yi, Carlo Contavalli, Cody Smith, Roman Kononov, Eric Mann-Hielscher, Ardas Cilingiroglu, Bin Cheyney, Wentao Shang, and Jinnah Dylan Hosein. 2016. “Maglev: A Fast and Reliable Software Network Load Balancer.” In *13th Usenix Symposium on Networked Systems Design and Implementation (Nsdi 16)*, 523–35. Santa Clara, CA. <https://www.usenix.org/conference/nsdi16/technical-sessions/presentation/eisenbud>.
 //!  - [Multi-probe consistent hashing](https://arxiv.org/abs/1505.00062)
 //!  > Appleton, Ben, and Michael O’Reilly. 2015. “Multi-Probe Consistent Hashing.” *CoRR* abs/1505.00062. <http://arxiv.org/abs/1505.00062>.
 //!  - [Using name-based mappings to increase hit rates](https://dl.acm.org/citation.cfm?id=276288)
 //!  > Thaler, David G., and Chinya V. Ravishankar. 1998. “Using Name-Based Mappings to Increase Hit Rates.” *IEEE/ACM Trans. Netw.* 6 (1). Piscataway, NJ, USA: IEEE Press: 1–14. doi:[10.1109/90.663936](https://doi.org/10.1109/90.663936).
-//!  - [Weighted Distributed Hash Tables](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.414.9353&rep=rep1&type=pdf)
+//!  - [Weighted Distributed Hash
+//!    Tables](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.414.9353&rep=rep1&type=pdf)
 //!  > Schindelhauer, Christian, and Gunnar Schomaker. 2005. “Weighted Distributed Hash Tables.” In *Proceedings of the Seventeenth Annual Acm Symposium on Parallelism in Algorithms and Architectures*, 218–27. SPAA ’05. New York, NY, USA: ACM. doi:[10.1145/1073970.1074008](https://doi.org/10.1145/1073970.1074008).
 //!
 //! ## License
