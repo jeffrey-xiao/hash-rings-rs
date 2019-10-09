@@ -3,8 +3,9 @@
 use crate::util;
 use rand::{Rng, XorShiftRng};
 use siphasher::sip::SipHasher;
+use std::collections::hash_map::RandomState;
 use std::collections::BTreeMap;
-use std::hash::{Hash, Hasher};
+use std::hash::{BuildHasher, Hash, Hasher};
 
 const PRIME: u64 = 0xFFFF_FFFF_FFFF_FFC5;
 
@@ -17,8 +18,12 @@ const PRIME: u64 = 0xFFFF_FFFF_FFFF_FFC5;
 /// # Examples
 /// ```
 /// use hash_rings::mpc::Ring;
+/// use std::collections::hash_map::DefaultHasher;
+/// use std::hash::BuildHasherDefault;
 ///
-/// let mut ring = Ring::new(2);
+/// type DefaultBuildHasher = BuildHasherDefault<DefaultHasher>;
+///
+/// let mut ring = Ring::with_hasher(DefaultBuildHasher::default(), 2);
 ///
 /// ring.insert_node(&"node-1");
 /// ring.insert_node(&"node-2");
@@ -32,16 +37,35 @@ const PRIME: u64 = 0xFFFF_FFFF_FFFF_FFC5;
 /// assert_eq!(iterator.next(), Some(&"node-2"));
 /// assert_eq!(iterator.next(), None);
 /// ```
-pub struct Ring<'a, T> {
+pub struct Ring<'a, T, H = RandomState> {
     nodes: BTreeMap<u64, &'a T>,
     hash_count: u64,
     hashers: [SipHasher; 2],
+    hash_builder: H,
 }
 
-impl<'a, T> Ring<'a, T>
-where
-    T: Hash + Eq,
-{
+impl<'a, T> Ring<'a, T, RandomState> {
+    /// Constructs a new, empty `Ring<T>` that hashes `hash_count` times when a key is inserted.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hash_rings::mpc::Ring;
+    ///
+    /// let mut ring: Ring<&str> = Ring::new(2);
+    /// ```
+    pub fn new(hash_count: u64) -> Self {
+        assert!(hash_count > 0);
+        Self {
+            nodes: BTreeMap::new(),
+            hash_count,
+            hashers: Self::get_hashers(),
+            hash_builder: Default::default(),
+        }
+    }
+}
+
+impl<'a, T, H> Ring<'a, T, H> {
     fn get_hashers() -> [SipHasher; 2] {
         let mut rng = XorShiftRng::new_unseeded();
         [
@@ -71,24 +95,6 @@ where
         }
     }
 
-    /// Constructs a new, empty `Ring<T>` that hashes `hash_count` times when a key is inserted.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use hash_rings::mpc::Ring;
-    ///
-    /// let mut ring: Ring<&str> = Ring::new(2);
-    /// ```
-    pub fn new(hash_count: u64) -> Self {
-        assert!(hash_count > 0);
-        Ring {
-            nodes: BTreeMap::new(),
-            hash_count,
-            hashers: Self::get_hashers(),
-        }
-    }
-
     fn get_next_hash(&self, hash: u64) -> u64 {
         let next_hash_opt = self
             .nodes
@@ -99,6 +105,30 @@ where
         match next_hash_opt {
             Some(hash) => hash,
             None => panic!("Error: empty ring."),
+        }
+    }
+
+    /// Constructs a new, empty `Ring<T>` that hashes `hash_count` times when a key is inserted
+    /// with a specified hash builder.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hash_rings::mpc::Ring;
+    /// use std::collections::hash_map::DefaultHasher;
+    /// use std::hash::BuildHasherDefault;
+    ///
+    /// type DefaultBuildHasher = BuildHasherDefault<DefaultHasher>;
+    ///
+    /// let mut ring: Ring<&str, _> = Ring::with_hasher(DefaultBuildHasher::default(), 2);
+    /// ```
+    pub fn with_hasher(hash_builder: H, hash_count: u64) -> Self {
+        assert!(hash_count > 0);
+        Self {
+            nodes: BTreeMap::new(),
+            hash_count,
+            hashers: Self::get_hashers(),
+            hash_builder,
         }
     }
 
@@ -116,8 +146,13 @@ where
     /// let mut ring: Ring<&str> = Ring::new(2);
     /// ring.insert_node(&"node-1");
     /// ```
-    pub fn insert_node(&mut self, id: &'a T) {
-        self.nodes.insert(util::gen_hash(id), id);
+    pub fn insert_node(&mut self, id: &'a T)
+    where
+        T: Hash,
+        H: BuildHasher,
+    {
+        self.nodes
+            .insert(util::gen_hash(&self.hash_builder, id), id);
     }
 
     /// Removes a node.
@@ -132,8 +167,12 @@ where
     /// ring.insert_node(&"node-1");
     /// ring.remove_node(&"node-1");
     /// ```
-    pub fn remove_node(&mut self, id: &T) {
-        self.nodes.remove(&util::gen_hash(id));
+    pub fn remove_node(&mut self, id: &T)
+    where
+        T: Hash,
+        H: BuildHasher,
+    {
+        self.nodes.remove(&util::gen_hash(&self.hash_builder, id));
     }
 
     /// Returns the node associated with a point.
@@ -222,7 +261,7 @@ where
     }
 }
 
-impl<'a, T> IntoIterator for &'a Ring<'a, T>
+impl<'a, T, H> IntoIterator for &'a Ring<'a, T, H>
 where
     T: Hash + Eq,
 {
@@ -237,23 +276,26 @@ where
 #[cfg(test)]
 mod tests {
     use super::Ring;
+    use crate::test_util::BuildDefaultHasher;
 
     #[test]
     #[should_panic]
     fn test_new_zero_hash_count() {
-        let _ring: Ring<'_, u32> = Ring::new(0);
+        let _ring: Ring<'_, u32, BuildDefaultHasher> =
+            Ring::with_hasher(BuildDefaultHasher::default(), 0);
     }
 
     #[test]
     #[should_panic]
     fn test_get_node_empty_ring() {
-        let ring: Ring<'_, u32> = Ring::new(2);
+        let ring: Ring<'_, u32, BuildDefaultHasher> =
+            Ring::with_hasher(BuildDefaultHasher::default(), 2);
         ring.get_node(&0);
     }
 
     #[test]
     fn test_get_node() {
-        let mut ring = Ring::new(2);
+        let mut ring = Ring::with_hasher(BuildDefaultHasher::default(), 2);
 
         ring.insert_node(&0);
         assert_eq!(ring.get_node(&2), &0);
@@ -267,7 +309,7 @@ mod tests {
 
     #[test]
     fn test_len() {
-        let mut ring = Ring::new(2);
+        let mut ring = Ring::with_hasher(BuildDefaultHasher::default(), 2);
         ring.insert_node(&0);
 
         assert_eq!(ring.len(), 1);
@@ -275,7 +317,7 @@ mod tests {
 
     #[test]
     fn test_is_empty() {
-        let mut ring = Ring::new(2);
+        let mut ring = Ring::with_hasher(BuildDefaultHasher::default(), 2);
         assert!(ring.is_empty());
 
         ring.insert_node(&0);
@@ -284,7 +326,7 @@ mod tests {
 
     #[test]
     fn test_iter() {
-        let mut ring = Ring::new(2);
+        let mut ring = Ring::with_hasher(BuildDefaultHasher::default(), 2);
         ring.insert_node(&0);
 
         let mut iterator = ring.iter();

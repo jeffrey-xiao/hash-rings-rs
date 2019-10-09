@@ -1,7 +1,8 @@
 //! Hashing ring implemented using jump hashing.
 
 use crate::util;
-use std::hash::Hash;
+use std::collections::hash_map::RandomState;
+use std::hash::{BuildHasher, Hash};
 
 /// A hashing ring implemented using jump hashing.
 ///
@@ -14,20 +15,26 @@ use std::hash::Hash;
 /// returns an integer in the range [0, nodes) and it does not support arbitrary node names.
 ///
 /// # Examples
+///
 /// ```
 /// use hash_rings::jump::Ring;
+/// use std::collections::hash_map::DefaultHasher;
+/// use std::hash::BuildHasherDefault;
 ///
-/// let ring = Ring::new(100);
+/// type DefaultBuildHasher = BuildHasherDefault<DefaultHasher>;
 ///
-/// assert_eq!(ring.get_node(&"foo"), 3);
+/// let ring = Ring::with_hasher(DefaultBuildHasher::default(), 100);
+///
+/// assert_eq!(ring.get_node(&"foo"), 8);
 /// assert_eq!(ring.nodes(), 100);
 /// ```
-pub struct Ring {
+pub struct Ring<H = RandomState> {
     nodes: u32,
+    hash_builder: H,
 }
 
-impl Ring {
-    /// Constructs a new `Ring<T>` with a specified number of nodes.
+impl Ring<RandomState> {
+    /// Constructs a new `Ring` with a specified number of nodes.
     ///
     /// # Panics
     ///
@@ -41,8 +48,34 @@ impl Ring {
     /// let ring: Ring = Ring::new(100);
     /// ```
     pub fn new(nodes: u32) -> Self {
+        Self::with_hasher(Default::default(), nodes)
+    }
+}
+
+impl<H> Ring<H> {
+    /// Constructs a new `Ring` with a specified number of nodes and hash builder.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the number of nodes is zero.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hash_rings::jump::Ring;
+    /// use std::collections::hash_map::DefaultHasher;
+    /// use std::hash::BuildHasherDefault;
+    ///
+    /// type DefaultBuildHasher = BuildHasherDefault<DefaultHasher>;
+    ///
+    /// let ring: Ring<_> = Ring::with_hasher(DefaultBuildHasher::default(), 100);
+    /// ```
+    pub fn with_hasher(hash_builder: H, nodes: u32) -> Self {
         assert!(nodes >= 1);
-        Ring { nodes }
+        Self {
+            hash_builder,
+            nodes,
+        }
     }
 
     /// Returns the node associated with a key.
@@ -51,15 +84,20 @@ impl Ring {
     ///
     /// ```
     /// use hash_rings::jump::Ring;
+    /// use std::collections::hash_map::DefaultHasher;
+    /// use std::hash::BuildHasherDefault;
     ///
-    /// let ring = Ring::new(100);
-    /// assert_eq!(ring.get_node(&"foo"), 3);
+    /// type DefaultBuildHasher = BuildHasherDefault<DefaultHasher>;
+    ///
+    /// let ring = Ring::with_hasher(DefaultBuildHasher::default(), 100);
+    /// assert_eq!(ring.get_node(&"foo"), 8);
     /// ```
     pub fn get_node<T>(&self, key: &T) -> u32
     where
         T: Hash,
+        H: BuildHasher,
     {
-        let mut h = util::gen_hash(key);
+        let mut h = util::gen_hash(&self.hash_builder, key);
         let mut i: i64 = -1;
         let mut j: i64 = 0;
 
@@ -90,22 +128,23 @@ impl Ring {
 #[cfg(test)]
 mod tests {
     use super::Ring;
+    use crate::test_util::BuildDefaultHasher;
 
     #[test]
     #[should_panic]
     fn test_new_zero_nodes() {
-        let _ring = Ring::new(0);
+        let _ring = Ring::with_hasher(BuildDefaultHasher::default(), 0);
     }
 
     #[test]
     fn test_get_node() {
-        let ring = Ring::new(100);
-        assert_eq!(ring.get_node(&"foo"), 3);
+        let ring = Ring::with_hasher(BuildDefaultHasher::default(), 100);
+        assert_eq!(ring.get_node(&"foo"), 8);
     }
 
     #[test]
     fn test_nodes() {
-        let ring = Ring::new(100);
+        let ring = Ring::with_hasher(BuildDefaultHasher::default(), 100);
         assert_eq!(ring.nodes(), 100);
     }
 }

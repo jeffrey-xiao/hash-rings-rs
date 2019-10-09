@@ -27,10 +27,7 @@ pub struct Ring<'a, T> {
     hasher: SipHasher,
 }
 
-impl<'a, T> Ring<'a, T>
-where
-    T: 'a + Hash,
-{
+impl<'a, T> Ring<'a, T> {
     fn get_hashers() -> [SipHasher; 2] {
         let mut rng = XorShiftRng::new_unseeded();
         [
@@ -48,7 +45,10 @@ where
     ///
     /// let ring = Ring::new(vec![&"node-1", &"node-2", &"node-3"]);
     /// ```
-    pub fn new(nodes: Vec<&'a T>) -> Self {
+    pub fn new(nodes: Vec<&'a T>) -> Self
+    where
+        T: Hash,
+    {
         assert!(!nodes.is_empty());
         let capacity_hint = nodes.len() * 100;
         Ring::with_capacity_hint(nodes, capacity_hint)
@@ -67,10 +67,13 @@ where
     /// let ring = Ring::with_capacity_hint(vec![&"node-1", &"node-2", &"node-3"], 100);
     /// assert_eq!(ring.capacity(), 101);
     /// ```
-    pub fn with_capacity_hint(nodes: Vec<&'a T>, capacity_hint: usize) -> Self {
+    pub fn with_capacity_hint(nodes: Vec<&'a T>, capacity_hint: usize) -> Self
+    where
+        T: Hash,
+    {
         let hashers = Self::get_hashers();
         let lookup = Self::populate(&hashers, &nodes, capacity_hint);
-        Ring {
+        Self {
             nodes,
             lookup,
             hasher: hashers[0],
@@ -86,7 +89,10 @@ where
         sip.finish() as usize
     }
 
-    fn populate(hashers: &[SipHasher; 2], nodes: &[&T], capacity_hint: usize) -> Vec<usize> {
+    fn populate(hashers: &[SipHasher; 2], nodes: &[&T], capacity_hint: usize) -> Vec<usize>
+    where
+        T: 'a + Hash,
+    {
         let m = Sieve::new(capacity_hint * 2)
             .primes_from(capacity_hint)
             .next()

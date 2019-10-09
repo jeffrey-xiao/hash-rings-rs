@@ -1,10 +1,10 @@
 //! Hashing ring implemented using consistent hashing.
 
 use crate::util;
+use std::collections::hash_map::RandomState;
 use std::collections::{BTreeMap, HashMap, HashSet};
-use std::hash::Hash;
+use std::hash::{BuildHasher, Hash};
 use std::iter::Iterator;
-use std::mem;
 use std::vec::Vec;
 
 /// A hashing ring implemented using consistent hashing.
@@ -18,8 +18,12 @@ use std::vec::Vec;
 /// # Examples
 /// ```
 /// use hash_rings::consistent::Ring;
+/// use std::collections::hash_map::DefaultHasher;
+/// use std::hash::BuildHasherDefault;
 ///
-/// let mut ring = Ring::new();
+/// type DefaultBuildHasher = BuildHasherDefault<DefaultHasher>;
+///
+/// let mut ring = Ring::with_hasher(DefaultBuildHasher::default());
 ///
 /// ring.insert_node(&"node-1", 1);
 /// ring.insert_node(&"node-2", 3);
@@ -33,15 +37,13 @@ use std::vec::Vec;
 /// assert_eq!(iterator.next(), Some((&"node-2", 3)));
 /// assert_eq!(iterator.next(), None);
 /// ```
-pub struct Ring<'a, T> {
+pub struct Ring<'a, T, H = RandomState> {
     nodes: BTreeMap<u64, &'a T>,
     replicas: HashMap<&'a T, usize>,
+    hash_builder: H,
 }
 
-impl<'a, T> Ring<'a, T>
-where
-    T: Hash + Eq,
-{
+impl<'a, T> Ring<'a, T, RandomState> {
     /// Constructs a new, empty `Ring<T>`.
     ///
     /// # Examples
@@ -51,10 +53,37 @@ where
     ///
     /// let mut ring: Ring<&str> = Ring::new();
     /// ```
-    pub fn new() -> Self {
-        Ring {
+    pub fn new() -> Self
+    where
+        T: Hash + Eq,
+    {
+        Self::default()
+    }
+}
+
+impl<'a, T, H> Ring<'a, T, H> {
+    /// Constructs a new, empty `Ring<T>` with a specified hash builder.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hash_rings::consistent::Ring;
+    /// use std::collections::hash_map::DefaultHasher;
+    /// use std::hash::BuildHasherDefault;
+    ///
+    /// type DefaultBuildHasher = BuildHasherDefault<DefaultHasher>;
+    ///
+    /// let mut ring: Ring<&str, _> = Ring::with_hasher(DefaultBuildHasher::default());
+    /// ```
+    pub fn with_hasher(hash_builder: H) -> Self
+    where
+        T: Hash + Eq,
+        H: BuildHasher + Default,
+    {
+        Self {
             nodes: BTreeMap::new(),
             replicas: HashMap::new(),
+            hash_builder,
         }
     }
 
@@ -83,9 +112,17 @@ where
     /// ring.insert_node(&"node-1", 1);
     /// ring.insert_node(&"node-2", 3);
     /// ```
-    pub fn insert_node(&mut self, id: &'a T, replicas: usize) {
+    pub fn insert_node(&mut self, id: &'a T, replicas: usize)
+    where
+        T: Hash + Eq,
+        H: BuildHasher,
+    {
         for i in 0..replicas {
-            let hash = util::combine_hash(util::gen_hash(id), util::gen_hash(&i));
+            let hash = util::combine_hash(
+                &self.hash_builder,
+                util::gen_hash(&self.hash_builder, id),
+                util::gen_hash(&self.hash_builder, &i),
+            );
             self.nodes.insert(hash, id);
         }
         self.replicas.insert(id, replicas);
@@ -104,9 +141,17 @@ where
     /// ring.insert_node(&"node-2", 1);
     /// ring.remove_node(&"node-2");
     /// ```
-    pub fn remove_node(&mut self, id: &T) {
+    pub fn remove_node(&mut self, id: &T)
+    where
+        T: Hash + Eq,
+        H: BuildHasher,
+    {
         for i in 0..self.replicas[id] {
-            let hash = util::combine_hash(util::gen_hash(id), util::gen_hash(&i));
+            let hash = util::combine_hash(
+                &self.hash_builder,
+                util::gen_hash(&self.hash_builder, id),
+                util::gen_hash(&self.hash_builder, &i),
+            );
             let should_remove = {
                 if let Some(existing_id) = self.nodes.get(&hash) {
                     *existing_id == id
@@ -141,8 +186,9 @@ where
     pub fn get_node<U>(&mut self, point: &U) -> &T
     where
         U: Hash,
+        H: BuildHasher,
     {
-        let hash = util::gen_hash(point);
+        let hash = util::gen_hash(&self.hash_builder, point);
         if let Some(node) = self.get_next_node(hash) {
             &*node
         } else {
@@ -154,7 +200,10 @@ where
         self.nodes.contains_key(&index)
     }
 
-    fn get_replica_count(&self, id: &T) -> usize {
+    fn get_replica_count(&self, id: &T) -> usize
+    where
+        T: Hash + Eq,
+    {
         self.replicas[id]
     }
 
@@ -170,7 +219,10 @@ where
     /// ring.insert_node(&"node-1", 3);
     /// assert_eq!(ring.len(), 1);
     /// ```
-    pub fn len(&self) -> usize {
+    pub fn len(&self) -> usize
+    where
+        T: Hash + Eq,
+    {
         self.replicas.len()
     }
 
@@ -187,7 +239,10 @@ where
     /// ring.insert_node(&"node-1", 3);
     /// assert!(!ring.is_empty());
     /// ```
-    pub fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool
+    where
+        T: Hash + Eq,
+    {
         self.replicas.is_empty()
     }
 
@@ -206,7 +261,10 @@ where
     /// assert_eq!(iterator.next(), Some((&"node-1", 1)));
     /// assert_eq!(iterator.next(), None);
     /// ```
-    pub fn iter(&'a self) -> impl Iterator<Item = (&'a T, usize)> {
+    pub fn iter(&'a self) -> impl Iterator<Item = (&'a T, usize)>
+    where
+        T: Hash + Eq,
+    {
         self.replicas.iter().map(|replica| {
             let (id, replica_count) = replica;
             (&**id, *replica_count)
@@ -214,7 +272,7 @@ where
     }
 }
 
-impl<'a, T> IntoIterator for &'a Ring<'a, T>
+impl<'a, T, H> IntoIterator for &'a Ring<'a, T, H>
 where
     T: Hash + Eq,
 {
@@ -226,12 +284,13 @@ where
     }
 }
 
-impl<'a, T> Default for Ring<'a, T>
+impl<'a, T, H> Default for Ring<'a, T, H>
 where
     T: Hash + Eq,
+    H: BuildHasher + Default,
 {
     fn default() -> Self {
-        Self::new()
+        Self::with_hasher(Default::default())
     }
 }
 
@@ -252,16 +311,12 @@ where
 /// client.remove_point(&"point-2");
 /// assert_eq!(client.get_points(&"node-1"), [&"point-1"]);
 /// ```
-pub struct Client<'a, T, U> {
-    ring: Ring<'a, T>,
+pub struct Client<'a, T, U, H = RandomState> {
+    ring: Ring<'a, T, H>,
     data: BTreeMap<u64, HashSet<&'a U>>,
 }
 
-impl<'a, T, U> Client<'a, T, U>
-where
-    T: Hash + Eq,
-    U: Hash + Eq,
-{
+impl<'a, T, U> Client<'a, T, U, RandomState> {
     /// Constructs a new, empty `Client<T, U>`.
     ///
     /// # Examples
@@ -271,9 +326,37 @@ where
     ///
     /// let mut client: Client<&str, &str> = Client::new();
     /// ```
-    pub fn new() -> Self {
-        Client {
-            ring: Ring::new(),
+    pub fn new() -> Self
+    where
+        T: Hash + Eq,
+        U: Hash + Eq,
+    {
+        Self::default()
+    }
+}
+
+impl<'a, T, U, H> Client<'a, T, U, H> {
+    /// Constructs a new, empty `Client<T, U>` with a specified hash builder.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hash_rings::consistent::Client;
+    /// use std::collections::hash_map::DefaultHasher;
+    /// use std::hash::BuildHasherDefault;
+    ///
+    /// type DefaultBuildHasher = BuildHasherDefault<DefaultHasher>;
+    ///
+    /// let mut client: Client<&str, &str, _> = Client::with_hasher(DefaultBuildHasher::default());
+    /// ```
+    pub fn with_hasher(hash_builder: H) -> Self
+    where
+        T: Hash + Eq,
+        U: Hash + Eq,
+        H: BuildHasher + Default,
+    {
+        Self {
+            ring: Ring::with_hasher(hash_builder),
             data: BTreeMap::new(),
         }
     }
@@ -308,30 +391,49 @@ where
     /// client.insert_node(&"node-1", 1);
     /// client.insert_node(&"node-2", 3);
     /// ```
-    pub fn insert_node(&mut self, id: &'a T, replicas: usize) {
+    pub fn insert_node(&mut self, id: &'a T, replicas: usize)
+    where
+        T: Hash + Eq,
+        U: Hash + Eq,
+        H: BuildHasher,
+    {
         let new_hashes = (0..replicas)
-            .map(|replica| util::combine_hash(util::gen_hash(&id), util::gen_hash(&replica)))
+            .map(|replica| {
+                util::combine_hash(
+                    &self.ring.hash_builder,
+                    util::gen_hash(&self.ring.hash_builder, &id),
+                    util::gen_hash(&self.ring.hash_builder, &replica),
+                )
+            })
             .collect::<Vec<u64>>();
         self.ring.insert_node(id, replicas);
         for new_hash in new_hashes {
-            let mut new_points = HashSet::new();
             // if hash already exists, then no additional work is needed to be done
-            if !self.data.contains_key(&new_hash) {
-                if let Some((hash, points)) = self.get_next_node(new_hash) {
-                    let (old_set, new_set) = points.drain().partition(|point| {
-                        let point_hash = util::gen_hash(point);
-                        if new_hash < hash {
-                            new_hash < point_hash && point_hash < hash
-                        } else {
-                            new_hash < point_hash || point_hash < hash
-                        }
-                    });
-
-                    mem::replace(points, old_set);
-                    new_points = new_set;
-                }
-                self.data.insert(new_hash, new_points);
+            if self.data.contains_key(&new_hash) {
+                continue;
             }
+            let hash = match self.get_next_node(new_hash) {
+                Some((hash, _)) => hash,
+                None => {
+                    self.data.insert(new_hash, HashSet::new());
+                    continue;
+                },
+            };
+            let Client { ring, data } = self;
+            let (old_set, new_set) = data
+                .get_mut(&hash)
+                .expect("Expected node to exist.")
+                .drain()
+                .partition(|point| {
+                    let point_hash = util::gen_hash(&ring.hash_builder, point);
+                    if new_hash < hash {
+                        new_hash < point_hash && point_hash < hash
+                    } else {
+                        new_hash < point_hash || point_hash < hash
+                    }
+                });
+            self.data.insert(hash, old_set);
+            self.data.insert(new_hash, new_set);
         }
     }
 
@@ -352,11 +454,20 @@ where
     /// client.insert_node(&"node-2", 1);
     /// client.remove_node(&"node-2");
     /// ```
-    pub fn remove_node(&mut self, id: &T) {
+    pub fn remove_node(&mut self, id: &T)
+    where
+        T: Hash + Eq,
+        U: Hash + Eq,
+        H: BuildHasher,
+    {
         let replicas = self.ring.get_replica_count(id);
         self.ring.remove_node(id);
         for i in 0..replicas {
-            let hash = util::combine_hash(util::gen_hash(id), util::gen_hash(&i));
+            let hash = util::combine_hash(
+                &self.ring.hash_builder,
+                util::gen_hash(&self.ring.hash_builder, id),
+                util::gen_hash(&self.ring.hash_builder, &i),
+            );
             if !self.ring.contains_node(hash) {
                 if let Some(points) = self.data.remove(&hash) {
                     if let Some((_, next_points)) = self.get_next_node(hash) {
@@ -386,10 +497,19 @@ where
     /// client.insert_point(&"point-1");
     /// assert_eq!(client.get_points(&"node-1"), [&"point-1"]);
     /// ```
-    pub fn get_points(&self, id: &T) -> Vec<&U> {
+    pub fn get_points(&self, id: &T) -> Vec<&U>
+    where
+        T: Hash + Eq,
+        U: Hash + Eq,
+        H: BuildHasher,
+    {
         let mut ret: Vec<&U> = Vec::new();
         for i in 0..self.ring.get_replica_count(id) {
-            let hash = util::combine_hash(util::gen_hash(id), util::gen_hash(&i));
+            let hash = util::combine_hash(
+                &self.ring.hash_builder,
+                util::gen_hash(&self.ring.hash_builder, id),
+                util::gen_hash(&self.ring.hash_builder, &i),
+            );
             if let Some(points) = self.data.get(&hash) {
                 ret.extend(points.iter());
             }
@@ -414,7 +534,11 @@ where
     /// client.insert_point(&"point-1");
     /// assert_eq!(client.get_node(&"point-1"), &"node-1");
     /// ```
-    pub fn get_node(&mut self, point: &U) -> &T {
+    pub fn get_node(&mut self, point: &U) -> &T
+    where
+        U: Hash + Eq,
+        H: BuildHasher,
+    {
         self.ring.get_node(point)
     }
 
@@ -433,8 +557,12 @@ where
     /// client.insert_node(&"node-1", 1);
     /// client.insert_point(&"point-1");
     /// ```
-    pub fn insert_point(&mut self, point: &'a U) {
-        let hash = util::gen_hash(point);
+    pub fn insert_point(&mut self, point: &'a U)
+    where
+        U: Hash + Eq,
+        H: BuildHasher,
+    {
+        let hash = util::gen_hash(&self.ring.hash_builder, point);
         if let Some((_, points)) = self.get_next_node(hash) {
             points.insert(point);
         } else {
@@ -458,8 +586,12 @@ where
     /// client.insert_point(&"point-1");
     /// client.remove_point(&"point-1");
     /// ```
-    pub fn remove_point(&mut self, point: &U) {
-        let hash = util::gen_hash(&point);
+    pub fn remove_point(&mut self, point: &U)
+    where
+        U: Hash + Eq,
+        H: BuildHasher,
+    {
+        let hash = util::gen_hash(&self.ring.hash_builder, &point);
         if let Some((_, points)) = self.get_next_node(hash) {
             points.remove(point);
         } else {
@@ -479,7 +611,10 @@ where
     /// client.insert_node(&"node-1", 3);
     /// assert_eq!(client.len(), 1);
     /// ```
-    pub fn len(&self) -> usize {
+    pub fn len(&self) -> usize
+    where
+        T: Hash + Eq,
+    {
         self.ring.len()
     }
 
@@ -496,7 +631,10 @@ where
     /// client.insert_node(&"node-1", 3);
     /// assert!(!client.is_empty());
     /// ```
-    pub fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool
+    where
+        T: Hash + Eq,
+    {
         self.ring.is_empty()
     }
 
@@ -516,11 +654,20 @@ where
     /// assert_eq!(iterator.next(), Some((&"node-1", vec![&"point-1"])));
     /// assert_eq!(iterator.next(), None);
     /// ```
-    pub fn iter(&'a self) -> impl Iterator<Item = (&'a T, Vec<&'a U>)> {
+    pub fn iter(&'a self) -> impl Iterator<Item = (&'a T, Vec<&'a U>)>
+    where
+        T: Hash + Eq,
+        U: Hash + Eq,
+        H: BuildHasher,
+    {
         self.ring.iter().map(move |replica| {
             let mut points = Vec::new();
             for i in 0..replica.1 {
-                let hash = util::combine_hash(util::gen_hash(&*replica.0), util::gen_hash(&i));
+                let hash = util::combine_hash(
+                    &self.ring.hash_builder,
+                    util::gen_hash(&self.ring.hash_builder, &*replica.0),
+                    util::gen_hash(&self.ring.hash_builder, &i),
+                );
                 points.extend(&self.data[&hash])
             }
             (replica.0, points)
@@ -528,10 +675,11 @@ where
     }
 }
 
-impl<'a, T, U> IntoIterator for &'a Client<'a, T, U>
+impl<'a, T, U, H> IntoIterator for &'a Client<'a, T, U, H>
 where
     T: Hash + Eq,
     U: Hash + Eq,
+    H: BuildHasher,
 {
     type IntoIter = Box<dyn Iterator<Item = (&'a T, Vec<&'a U>)> + 'a>;
     type Item = (&'a T, Vec<&'a U>);
@@ -541,19 +689,21 @@ where
     }
 }
 
-impl<'a, T, U> Default for Client<'a, T, U>
+impl<'a, T, U, H> Default for Client<'a, T, U, H>
 where
     T: Hash + Eq,
     U: Hash + Eq,
+    H: BuildHasher + Default,
 {
     fn default() -> Self {
-        Self::new()
+        Self::with_hasher(Default::default())
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::Client;
+    use crate::test_util::BuildDefaultHasher;
     use std::hash::{Hash, Hasher};
 
     #[test]
@@ -581,21 +731,21 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_panic_get_node_empty_client() {
-        let mut client: Client<'_, u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32, BuildDefaultHasher> = Client::default();
         client.get_node(&0);
     }
 
     #[test]
     #[should_panic]
     fn test_panic_insert_point_empty_client() {
-        let mut client: Client<'_, u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32, BuildDefaultHasher> = Client::default();
         client.insert_point(&0);
     }
 
     #[test]
     #[should_panic]
     fn test_panic_remove_point_empty_client() {
-        let mut client: Client<'_, u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32, BuildDefaultHasher> = Client::default();
         client.remove_point(&0);
     }
 
@@ -619,7 +769,7 @@ mod tests {
 
     #[test]
     fn test_insert_node_replace_node() {
-        let mut client: Client<'_, Key, u32> = Client::new();
+        let mut client: Client<'_, Key, u32, BuildDefaultHasher> = Client::default();
         client.insert_node(&Key(0), 1);
         client.insert_point(&0);
         client.insert_node(&Key(1), 1);
@@ -628,7 +778,7 @@ mod tests {
 
     #[test]
     fn test_insert_node_share_node() {
-        let mut client: Client<'_, u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32, BuildDefaultHasher> = Client::default();
         client.insert_node(&0, 1);
         client.insert_point(&0);
         client.insert_point(&3);
@@ -639,7 +789,7 @@ mod tests {
 
     #[test]
     fn test_remove_node() {
-        let mut client: Client<'_, u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32, BuildDefaultHasher> = Client::default();
         client.insert_node(&0, 1);
         client.insert_point(&0);
         client.insert_node(&1, 1);
@@ -649,14 +799,14 @@ mod tests {
 
     #[test]
     fn test_get_node() {
-        let mut client: Client<'_, u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32, BuildDefaultHasher> = Client::default();
         client.insert_node(&0, 3);
         assert_eq!(client.get_node(&0), &0);
     }
 
     #[test]
     fn test_insert_point() {
-        let mut client: Client<'_, u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32, BuildDefaultHasher> = Client::default();
         client.insert_node(&0, 3);
         client.insert_point(&0);
         assert_eq!(client.get_points(&0).as_slice(), [&0u32]);
@@ -664,7 +814,7 @@ mod tests {
 
     #[test]
     fn test_remove_point() {
-        let mut client: Client<'_, u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32, BuildDefaultHasher> = Client::default();
         client.insert_node(&0, 3);
         client.insert_point(&0);
         client.remove_point(&0);
@@ -674,7 +824,7 @@ mod tests {
 
     #[test]
     fn test_iter() {
-        let mut client: Client<'_, u32, u32> = Client::new();
+        let mut client: Client<'_, u32, u32, BuildDefaultHasher> = Client::default();
         client.insert_node(&0, 3);
         client.insert_point(&1);
         client.insert_point(&2);

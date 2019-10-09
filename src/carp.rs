@@ -1,8 +1,9 @@
 //! Hashing ring implemented using the Cache Ring Routing Protocol.
 
 use crate::util;
+use std::collections::hash_map::RandomState;
 use std::f64;
-use std::hash::Hash;
+use std::hash::{BuildHasher, Hash};
 
 /// A node with an associated weight.
 ///
@@ -16,10 +17,7 @@ pub struct Node<'a, T> {
     relative_weight: f64,
 }
 
-impl<'a, T> Node<'a, T>
-where
-    T: Hash,
-{
+impl<'a, T> Node<'a, T> {
     /// Constructs a new node with a particular weight associated with it.
     ///
     /// # Examples
@@ -32,7 +30,7 @@ where
     pub fn new(id: &'a T, weight: f64) -> Self {
         Node {
             id,
-            hash: util::gen_hash(id),
+            hash: 0,
             weight,
             relative_weight: 0f64,
         }
@@ -47,8 +45,15 @@ where
 /// # Examples
 /// ```
 /// use hash_rings::carp::{Node, Ring};
+/// use std::collections::hash_map::DefaultHasher;
+/// use std::hash::BuildHasherDefault;
 ///
-/// let mut ring = Ring::new(vec![Node::new(&"node-1", 1f64), Node::new(&"node-2", 3f64)]);
+/// type DefaultBuildHasher = BuildHasherDefault<DefaultHasher>;
+///
+/// let mut ring = Ring::with_hasher(
+///     DefaultBuildHasher::default(),
+///     vec![Node::new(&"node-1", 1f64), Node::new(&"node-2", 3f64)],
+/// );
 ///
 /// ring.remove_node(&"node-1");
 ///
@@ -59,11 +64,30 @@ where
 /// assert_eq!(iterator.next(), Some((&"node-2", 3f64)));
 /// assert_eq!(iterator.next(), None);
 /// ```
-pub struct Ring<'a, T> {
+pub struct Ring<'a, T, H = RandomState> {
     nodes: Vec<Node<'a, T>>,
+    hash_builder: H,
 }
 
-impl<'a, T> Ring<'a, T> {
+impl<'a, T> Ring<'a, T, RandomState> {
+    /// Constructs a new, empty `Ring<T>`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hash_rings::carp::Ring;
+    ///
+    /// let mut ring: Ring<&str> = Ring::new(vec![]);
+    /// ```
+    pub fn new(nodes: Vec<Node<'a, T>>) -> Self
+    where
+        T: Hash + Ord,
+    {
+        Self::with_hasher(Default::default(), nodes)
+    }
+}
+
+impl<'a, T, H> Ring<'a, T, H> {
     fn rebalance(&mut self) {
         let mut product = 1f64;
         let len = self.nodes.len() as f64;
@@ -88,19 +112,27 @@ impl<'a, T> Ring<'a, T> {
         }
     }
 
-    /// Constructs a new, empty `Ring<T>`.
+    /// Constructs a new, empty `Ring<T>` with a specified hash builder.
     ///
     /// # Examples
     ///
     /// ```
     /// use hash_rings::carp::Ring;
+    /// use std::collections::hash_map::DefaultHasher;
+    /// use std::hash::BuildHasherDefault;
     ///
-    /// let mut ring: Ring<&str> = Ring::new(vec![]);
+    /// type DefaultBuildHasher = BuildHasherDefault<DefaultHasher>;
+    ///
+    /// let mut ring: Ring<&str, _> = Ring::with_hasher(DefaultBuildHasher::default(), vec![]);
     /// ```
-    pub fn new(mut nodes: Vec<Node<'a, T>>) -> Ring<'a, T>
+    pub fn with_hasher(hash_builder: H, mut nodes: Vec<Node<'a, T>>) -> Self
     where
-        T: Ord,
+        T: Hash + Ord,
+        H: BuildHasher + Default,
     {
+        for node in &mut nodes {
+            node.hash = util::gen_hash(&hash_builder, node.id);
+        }
         nodes.reverse();
         nodes.sort_by_key(|node| node.id);
         nodes.dedup_by_key(|node| node.id);
@@ -113,7 +145,10 @@ impl<'a, T> Ring<'a, T> {
                     .expect("Expected all non-NaN floats.")
             }
         });
-        let mut ret = Ring { nodes };
+        let mut ret = Self {
+            nodes,
+            hash_builder,
+        };
         ret.rebalance();
         ret
     }
@@ -131,12 +166,14 @@ impl<'a, T> Ring<'a, T> {
     ///
     /// let mut ring = Ring::new(vec![Node::new(&"node-1", 1f64)]);
     ///
-    /// ring.remove_node(&"node-1");
+    /// ring.insert_node(Node::new(&"node-2", 1f64));
     /// ```
-    pub fn insert_node(&mut self, new_node: Node<'a, T>)
+    pub fn insert_node(&mut self, mut new_node: Node<'a, T>)
     where
-        T: Ord,
+        T: Hash + Ord,
+        H: BuildHasher,
     {
+        new_node.hash = util::gen_hash(&self.hash_builder, new_node.id);
         if let Some(index) = self.nodes.iter().position(|node| node.id == new_node.id) {
             self.nodes[index] = new_node;
         } else {
@@ -194,13 +231,15 @@ impl<'a, T> Ring<'a, T> {
     where
         T: Ord,
         U: Hash,
+        H: BuildHasher,
     {
-        let point_hash = util::gen_hash(point);
+        let point_hash = util::gen_hash(&self.hash_builder, point);
         self.nodes
             .iter()
             .map(|node| {
                 (
-                    util::combine_hash(node.hash, point_hash) as f64 * node.relative_weight,
+                    util::combine_hash(&self.hash_builder, node.hash, point_hash) as f64
+                        * node.relative_weight,
                     node.id,
                 )
             })
@@ -230,16 +269,16 @@ impl<'a, T> Ring<'a, T> {
         self.nodes.len()
     }
 
-    /// Removes a node from the ring.
+    /// Returns `true` if the ring is empty.
     ///
     /// # Examples
     ///
     /// ```
     /// use hash_rings::carp::{Node, Ring};
     ///
-    /// let mut ring = Ring::new(vec![Node::new(&"node-1", 1f64), Node::new(&"node-2", 3f64)]);
+    /// let ring: Ring<'_, u32, _> = Ring::new(vec![]);
     ///
-    /// assert_eq!(ring.len(), 2);
+    /// assert!(ring.is_empty());
     /// ```
     pub fn is_empty(&self) -> bool {
         self.nodes.is_empty()
@@ -266,7 +305,7 @@ impl<'a, T> Ring<'a, T> {
     }
 }
 
-impl<'a, T> IntoIterator for &'a Ring<'a, T> {
+impl<'a, T, H> IntoIterator for &'a Ring<'a, T, H> {
     type IntoIter = Box<dyn Iterator<Item = (&'a T, f64)> + 'a>;
     type Item = (&'a T, f64);
 
@@ -278,6 +317,8 @@ impl<'a, T> IntoIterator for &'a Ring<'a, T> {
 #[cfg(test)]
 mod tests {
     use super::{Node, Ring};
+    use crate::test_util::BuildDefaultHasher;
+
     macro_rules! assert_approx_eq {
         ($a:expr, $b:expr) => {{
             let (a, b) = (&$a, &$b);
@@ -292,18 +333,17 @@ mod tests {
 
     #[test]
     fn test_size_empty() {
-        let ring: Ring<'_, u32> = Ring::new(vec![]);
+        let ring: Ring<'_, u32, _> = Ring::with_hasher(BuildDefaultHasher::default(), vec![]);
         assert!(ring.is_empty());
         assert_eq!(ring.len(), 0);
     }
 
     #[test]
     fn test_correct_weights() {
-        let ring = Ring::new(vec![
-            Node::new(&0, 0.4),
-            Node::new(&1, 0.4),
-            Node::new(&2, 0.2),
-        ]);
+        let ring = Ring::with_hasher(
+            BuildDefaultHasher::default(),
+            vec![Node::new(&0, 0.4), Node::new(&1, 0.4), Node::new(&2, 0.2)],
+        );
         assert_eq!(ring.nodes[0].id, &2);
         assert_eq!(ring.nodes[1].id, &0);
         assert_eq!(ring.nodes[2].id, &1);
@@ -314,11 +354,10 @@ mod tests {
 
     #[test]
     fn test_new_replace() {
-        let ring = Ring::new(vec![
-            Node::new(&0, 0.5),
-            Node::new(&1, 0.1),
-            Node::new(&1, 0.5),
-        ]);
+        let ring = Ring::with_hasher(
+            BuildDefaultHasher::default(),
+            vec![Node::new(&0, 0.5), Node::new(&1, 0.1), Node::new(&1, 0.5)],
+        );
 
         assert_eq!(ring.nodes[0].id, &0);
         assert_eq!(ring.nodes[1].id, &1);
@@ -328,7 +367,7 @@ mod tests {
 
     #[test]
     fn test_insert_node() {
-        let mut ring = Ring::new(vec![Node::new(&0, 0.5)]);
+        let mut ring = Ring::with_hasher(BuildDefaultHasher::default(), vec![Node::new(&0, 0.5)]);
         ring.insert_node(Node::new(&1, 0.5));
 
         assert_eq!(ring.nodes[0].id, &0);
@@ -339,7 +378,10 @@ mod tests {
 
     #[test]
     fn test_insert_node_replace() {
-        let mut ring = Ring::new(vec![Node::new(&0, 0.5), Node::new(&1, 0.1)]);
+        let mut ring = Ring::with_hasher(
+            BuildDefaultHasher::default(),
+            vec![Node::new(&0, 0.5), Node::new(&1, 0.1)],
+        );
         ring.insert_node(Node::new(&1, 0.5));
 
         assert_eq!(ring.nodes[0].id, &0);
@@ -350,11 +392,10 @@ mod tests {
 
     #[test]
     fn test_remove_node() {
-        let mut ring = Ring::new(vec![
-            Node::new(&0, 0.5),
-            Node::new(&1, 0.5),
-            Node::new(&2, 0.1),
-        ]);
+        let mut ring = Ring::with_hasher(
+            BuildDefaultHasher::default(),
+            vec![Node::new(&0, 0.5), Node::new(&1, 0.5), Node::new(&2, 0.1)],
+        );
         ring.remove_node(&2);
 
         assert_eq!(ring.nodes[0].id, &0);
@@ -365,20 +406,25 @@ mod tests {
 
     #[test]
     fn test_get_node() {
-        let ring = Ring::new(vec![Node::new(&0, 1.0), Node::new(&1, 1.0)]);
+        let ring = Ring::with_hasher(
+            BuildDefaultHasher::default(),
+            vec![Node::new(&0, 1.0), Node::new(&1, 1.0)],
+        );
 
         assert_eq!(ring.get_node(&0), &0);
-        assert_eq!(ring.get_node(&1), &1);
+        assert_eq!(ring.get_node(&1), &0);
         assert_eq!(ring.get_node(&2), &0);
+        assert_eq!(ring.get_node(&3), &1);
+        assert_eq!(ring.get_node(&4), &1);
+        assert_eq!(ring.get_node(&5), &1);
     }
 
     #[test]
     fn test_iter() {
-        let ring = Ring::new(vec![
-            Node::new(&0, 0.4),
-            Node::new(&1, 0.4),
-            Node::new(&2, 0.2),
-        ]);
+        let ring = Ring::with_hasher(
+            BuildDefaultHasher::default(),
+            vec![Node::new(&0, 0.4), Node::new(&1, 0.4), Node::new(&2, 0.2)],
+        );
 
         let mut iterator = ring.iter();
         let mut node;
