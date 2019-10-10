@@ -498,7 +498,7 @@ impl<'a, T, U, H> Client<'a, T, U, H> {
         self.ring.get_node(point)
     }
 
-    /// Inserts a point into the ring.
+    /// Inserts a point into the ring and returns the node associated with the inserted point.
     ///
     /// # Panics
     ///
@@ -513,7 +513,7 @@ impl<'a, T, U, H> Client<'a, T, U, H> {
     /// client.insert_node(&"node-1", 1);
     /// client.insert_point(&"point-1");
     /// ```
-    pub fn insert_point(&mut self, point: &'a U)
+    pub fn insert_point(&mut self, point: &'a U) -> &T
     where
         T: Hash + Ord,
         U: Hash + Eq,
@@ -532,6 +532,7 @@ impl<'a, T, U, H> Client<'a, T, U, H> {
             .expect("Expected node to exist.")
             .insert(point);
         self.points.insert(point, (node, max_score));
+        node
     }
 
     /// Removes a point from the ring.
@@ -709,7 +710,7 @@ mod tests {
         client.insert_node(&1, 1);
         client.insert_point(&0);
         client.insert_node(&0, 1);
-        assert_eq!(client.get_points(&0).as_slice(), [&0u32]);
+        assert_eq!(client.get_points(&0), [&0u32]);
     }
 
     #[test]
@@ -741,7 +742,7 @@ mod tests {
         let mut client: Client<'_, u32, u32, BuildDefaultHasher> = Client::default();
         client.insert_node(&0, 3);
         client.insert_point(&0);
-        assert_eq!(client.get_points(&0).as_slice(), [&0u32]);
+        assert_eq!(client.get_points(&0), [&0u32]);
     }
 
     #[test]
@@ -751,7 +752,7 @@ mod tests {
         client.insert_point(&0);
         client.remove_point(&0);
         let expected: [&u32; 0] = [];
-        assert_eq!(client.get_points(&0).as_slice(), expected);
+        assert_eq!(client.get_points(&0), expected);
     }
 
     #[test]
@@ -766,7 +767,7 @@ mod tests {
         let mut actual: Vec<(&u32, Vec<&u32>)> = client.iter().collect();
         actual[0].1.sort();
         assert_eq!(actual[0].0, &0);
-        assert_eq!(actual[0].1.as_slice(), [&1, &2, &3, &4, &5]);
+        assert_eq!(actual[0].1, [&1, &2, &3, &4, &5]);
     }
 
     #[test]

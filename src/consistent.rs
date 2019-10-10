@@ -427,9 +427,9 @@ impl<'a, T, U, H> Client<'a, T, U, H> {
                 .partition(|point| {
                     let point_hash = util::gen_hash(&ring.hash_builder, point);
                     if new_hash < hash {
-                        new_hash < point_hash && point_hash < hash
+                        new_hash < point_hash && point_hash <= hash
                     } else {
-                        new_hash < point_hash || point_hash < hash
+                        new_hash < point_hash || point_hash <= hash
                     }
                 });
             self.data.insert(hash, old_set);
@@ -542,7 +542,7 @@ impl<'a, T, U, H> Client<'a, T, U, H> {
         self.ring.get_node(point)
     }
 
-    /// Inserts a point into the ring.
+    /// Inserts a point into the ring and returns the node associated with the inserted point.
     ///
     /// # Panics
     ///
@@ -557,7 +557,7 @@ impl<'a, T, U, H> Client<'a, T, U, H> {
     /// client.insert_node(&"node-1", 1);
     /// client.insert_point(&"point-1");
     /// ```
-    pub fn insert_point(&mut self, point: &'a U)
+    pub fn insert_point(&mut self, point: &'a U) -> &T
     where
         U: Hash + Eq,
         H: BuildHasher,
@@ -565,6 +565,7 @@ impl<'a, T, U, H> Client<'a, T, U, H> {
         let hash = util::gen_hash(&self.ring.hash_builder, point);
         if let Some((_, points)) = self.get_next_node(hash) {
             points.insert(point);
+            self.ring.get_node(point)
         } else {
             panic!("Error: empty ring.");
         }
@@ -702,9 +703,9 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::Client;
-    use crate::test_util::BuildDefaultHasher;
+    use crate::test_util::{BuildAddHasher, BuildDefaultHasher};
     use std::hash::{Hash, Hasher};
+    use super::Client;
 
     #[test]
     fn test_size_empty() {
@@ -768,23 +769,27 @@ mod tests {
     impl Eq for Key {}
 
     #[test]
-    fn test_insert_node_replace_node() {
-        let mut client: Client<'_, Key, u32, BuildDefaultHasher> = Client::default();
+    fn test_insert_node_same_node() {
+        let mut client: Client<'_, Key, u32, BuildAddHasher> = Client::default();
         client.insert_node(&Key(0), 1);
         client.insert_point(&0);
         client.insert_node(&Key(1), 1);
-        assert_eq!(client.get_points(&Key(1)).as_slice(), [&0u32]);
+        assert_eq!(client.get_points(&Key(0)), [&0u32]);
+        assert_eq!(client.get_points(&Key(1)), [&0u32]);
     }
 
     #[test]
     fn test_insert_node_share_node() {
-        let mut client: Client<'_, u32, u32, BuildDefaultHasher> = Client::default();
-        client.insert_node(&0, 1);
+        let mut client: Client<'_, Key, u32, BuildAddHasher> = Client::default();
+        client.insert_node(&Key(0), 1);
         client.insert_point(&0);
-        client.insert_point(&3);
-        client.insert_node(&1, 1);
-        assert_eq!(client.get_points(&0).as_slice(), [&3u32]);
-        assert_eq!(client.get_points(&1).as_slice(), [&0u32]);
+        client.insert_point(&1);
+        let mut actual: Vec<&u32> = client.get_points(&Key(0));
+        actual.sort();
+        assert_eq!(actual, [&0u32, &1u32]);
+        client.insert_node(&Key(2), 1);
+        assert_eq!(client.get_points(&Key(0)), [&0u32]);
+        assert_eq!(client.get_points(&Key(2)), [&1u32]);
     }
 
     #[test]
@@ -809,7 +814,7 @@ mod tests {
         let mut client: Client<'_, u32, u32, BuildDefaultHasher> = Client::default();
         client.insert_node(&0, 3);
         client.insert_point(&0);
-        assert_eq!(client.get_points(&0).as_slice(), [&0u32]);
+        assert_eq!(client.get_points(&0), [&0u32]);
     }
 
     #[test]
@@ -819,7 +824,7 @@ mod tests {
         client.insert_point(&0);
         client.remove_point(&0);
         let expected: [&u32; 0] = [];
-        assert_eq!(client.get_points(&0).as_slice(), expected);
+        assert_eq!(client.get_points(&0), expected);
     }
 
     #[test]
@@ -834,6 +839,6 @@ mod tests {
         let mut actual: Vec<(&u32, Vec<&u32>)> = client.iter().collect();
         actual[0].1.sort();
         assert_eq!(actual[0].0, &0);
-        assert_eq!(actual[0].1.as_slice(), [&1, &2, &3, &4, &5]);
+        assert_eq!(actual[0].1, [&1, &2, &3, &4, &5]);
     }
 }

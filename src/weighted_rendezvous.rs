@@ -142,13 +142,13 @@ impl<'a, T, H> Ring<'a, T, H> {
     /// ring.insert_node(&"node-1", 1f64);
     /// assert_eq!(ring.get_node(&"point-1"), &"node-1");
     /// ```
-    pub fn get_node<U>(&self, key: &U) -> &'a T
+    pub fn get_node<U>(&self, point: &U) -> &'a T
     where
         T: Hash + Ord,
         U: Hash,
         H: BuildHasher,
     {
-        let point_hash = util::gen_hash(&self.hash_builder, key);
+        let point_hash = util::gen_hash(&self.hash_builder, point);
         self.nodes
             .iter()
             .map(|entry| {
@@ -472,16 +472,16 @@ impl<'a, T, U, H> Client<'a, T, U, H> {
     /// client.insert_point(&"point-1");
     /// assert_eq!(client.get_node(&"point-1"), &"node-1");
     /// ```
-    pub fn get_node(&mut self, key: &U) -> &T
+    pub fn get_node(&mut self, point: &U) -> &T
     where
         T: Hash + Ord,
         U: Hash,
         H: BuildHasher,
     {
-        self.ring.get_node(key)
+        self.ring.get_node(point)
     }
 
-    /// Inserts a point into the ring.
+    /// Inserts a point into the ring and returns the node associated with the inserted point.
     ///
     /// # Panics
     ///
@@ -496,27 +496,28 @@ impl<'a, T, U, H> Client<'a, T, U, H> {
     /// client.insert_node(&"node-1", 1f64);
     /// client.insert_point(&"point-1");
     /// ```
-    pub fn insert_point(&mut self, point: &'a U)
+    pub fn insert_point(&mut self, point: &'a U) -> &T
     where
         T: Hash + Ord,
         U: Hash + Eq,
         H: BuildHasher,
     {
-        let new_node = self.ring.get_node(point);
+        let node = self.ring.get_node(point);
         let point_hash = util::gen_hash(&self.hash_builder, point);
         let curr_hash = util::combine_hash(
             &self.hash_builder,
-            util::gen_hash(&self.hash_builder, new_node),
+            util::gen_hash(&self.hash_builder, node),
             point_hash,
         );
         let coefficient = -1.0 / (curr_hash as f64 / u64::max_value() as f64).ln();
-        let curr_score = self.ring.nodes[new_node] / coefficient;
+        let curr_score = self.ring.nodes[node] / coefficient;
 
         self.nodes
-            .get_mut(new_node)
+            .get_mut(node)
             .expect("Expected node to exist.")
             .insert(point);
-        self.points.insert(point, (new_node, curr_score));
+        self.points.insert(point, (node, curr_score));
+        node
     }
 
     /// Removes a point from the ring.
@@ -695,7 +696,7 @@ mod tests {
         client.insert_node(&0, 0f64);
         client.insert_point(&0);
         client.insert_node(&1, 1f64);
-        assert_eq!(client.get_points(&1).as_slice(), [&0u32]);
+        assert_eq!(client.get_points(&1), [&0u32]);
     }
 
     #[test]
@@ -729,7 +730,7 @@ mod tests {
         let mut client: Client<'_, u32, u32, BuildDefaultHasher> = Client::default();
         client.insert_node(&0, 3f64);
         client.insert_point(&0);
-        assert_eq!(client.get_points(&0).as_slice(), [&0u32]);
+        assert_eq!(client.get_points(&0), [&0u32]);
     }
 
     #[test]
@@ -739,7 +740,7 @@ mod tests {
         client.insert_point(&0);
         client.remove_point(&0);
         let expected: [&u32; 0] = [];
-        assert_eq!(client.get_points(&0).as_slice(), expected);
+        assert_eq!(client.get_points(&0), expected);
     }
 
     #[test]
@@ -754,7 +755,7 @@ mod tests {
         let mut actual: Vec<(&u32, Vec<&u32>)> = client.iter().collect();
         actual[0].1.sort();
         assert_eq!(actual[0].0, &0);
-        assert_eq!(actual[0].1.as_slice(), [&1, &2, &3, &4, &5]);
+        assert_eq!(actual[0].1, [&1, &2, &3, &4, &5]);
     }
 
     #[test]
