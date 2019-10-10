@@ -447,7 +447,7 @@ impl<'a, T, U, H> Client<'a, T, U, H> {
     /// client.insert_point(&"point-1");
     /// assert_eq!(client.get_points(&"node-1"), [&"point-1"]);
     /// ```
-    pub fn get_points(&mut self, id: &T) -> Vec<&U>
+    pub fn get_points(&self, id: &T) -> Vec<&U>
     where
         T: Hash + Eq,
         U: Hash + Eq,
@@ -472,7 +472,7 @@ impl<'a, T, U, H> Client<'a, T, U, H> {
     /// client.insert_point(&"point-1");
     /// assert_eq!(client.get_node(&"point-1"), &"node-1");
     /// ```
-    pub fn get_node(&mut self, point: &U) -> &T
+    pub fn get_node(&self, point: &U) -> &T
     where
         T: Hash + Ord,
         U: Hash,

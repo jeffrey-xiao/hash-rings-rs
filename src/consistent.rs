@@ -183,7 +183,7 @@ impl<'a, T, H> Ring<'a, T, H> {
     /// ring.insert_node(&"node-1", 1);
     /// assert_eq!(ring.get_node(&"point-1"), &"node-1");
     /// ```
-    pub fn get_node<U>(&mut self, point: &U) -> &T
+    pub fn get_node<U>(&self, point: &U) -> &T
     where
         U: Hash,
         H: BuildHasher,
@@ -534,7 +534,7 @@ impl<'a, T, U, H> Client<'a, T, U, H> {
     /// client.insert_point(&"point-1");
     /// assert_eq!(client.get_node(&"point-1"), &"node-1");
     /// ```
-    pub fn get_node(&mut self, point: &U) -> &T
+    pub fn get_node(&self, point: &U) -> &T
     where
         U: Hash + Eq,
         H: BuildHasher,
