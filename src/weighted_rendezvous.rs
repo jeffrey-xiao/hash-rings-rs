@@ -609,10 +609,10 @@ impl<'a, T, U, H> Client<'a, T, U, H> {
         T: Hash + Eq,
         U: Hash + Eq,
     {
-        Box::new(self.nodes.iter().map(move |node_entry| {
+        self.nodes.iter().map(move |node_entry| {
             let (node_id, points) = node_entry;
             (&**node_id, points.iter().cloned().collect())
-        }))
+        })
     }
 }
 

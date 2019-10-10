@@ -417,7 +417,7 @@ impl<'a, T, U, H> Client<'a, T, U, H> {
                 None => {
                     self.data.insert(new_hash, HashSet::new());
                     continue;
-                },
+                }
             };
             let Client { ring, data } = self;
             let (old_set, new_set) = data
