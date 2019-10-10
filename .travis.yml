@@ -27,7 +27,7 @@ addons:
       - libiberty-dev
 
 before_script:
-  - rustup install nightly
+  - rustup install stable
   - rustup component add clippy --toolchain stable
   - rustup component add rustfmt --toolchain stable
 
