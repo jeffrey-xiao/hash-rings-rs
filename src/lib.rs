@@ -211,6 +211,8 @@
 //! > Thaler, David G., and Chinya V. Ravishankar. 1998. “Using Name-Based Mappings to Increase Hit Rates.” _IEEE/ACM Trans. Netw._ 6 (1). Piscataway, NJ, USA: IEEE Press: 1–14. doi:[10.1109/90.663936](https://doi.org/10.1109/90.663936).
 //! - [Weighted Distributed Hash Tables](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.414.9353&rep=rep1&type=pdf)
 //! > Schindelhauer, Christian, and Gunnar Schomaker. 2005. “Weighted Distributed Hash Tables.” In _Proceedings of the Seventeenth Annual Acm Symposium on Parallelism in Algorithms and Architectures_, 218–27. SPAA ’05. New York, NY, USA: ACM. doi:[10.1145/1073970.1074008](https://doi.org/10.1145/1073970.1074008).
+//! - [Consistent Hashing with Bounded Loads](https://arxiv.org/abs/1608.01350)
+//! > Mirrokni, Vahab, Mikkel Thorup, and Morteza Zadimoghaddam. 2018. “Consistent Hashing with Bounded Loads.” In *Proceedings of the Twenty-Ninth Annual Acm-Siam Symposium on Discrete Algorithms*, 587–604. SIAM.
 //!
 //! ## License
 //!
