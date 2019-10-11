@@ -189,10 +189,9 @@ impl<'a, T, H> Ring<'a, T, H> {
         H: BuildHasher,
     {
         let hash = util::gen_hash(&self.hash_builder, point);
-        if let Some(node) = self.get_next_node(hash) {
-            &*node
-        } else {
-            panic!("Error: empty ring.");
+        match self.get_next_node(hash) {
+            Some(node) => &*node,
+            None => panic!("Error: empty ring."),
         }
     }
 
@@ -408,7 +407,7 @@ impl<'a, T, U, H> Client<'a, T, U, H> {
             .collect::<Vec<u64>>();
         self.ring.insert_node(id, replicas);
         for new_hash in new_hashes {
-            // if hash already exists, then no additional work is needed to be done
+            // If hash already exists, then no additional work is needed to be done.
             if self.data.contains_key(&new_hash) {
                 continue;
             }
@@ -703,9 +702,9 @@ where
 
 #[cfg(test)]
 mod tests {
+    use super::Client;
     use crate::test_util::{BuildAddHasher, BuildDefaultHasher};
     use std::hash::{Hash, Hasher};
-    use super::Client;
 
     #[test]
     fn test_size_empty() {
