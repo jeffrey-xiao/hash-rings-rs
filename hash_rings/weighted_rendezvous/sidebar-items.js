@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Client","A client that uses `Ring<T>`."],["Ring","A hashing ring implemented using weighted rendezvous hashing."]]});

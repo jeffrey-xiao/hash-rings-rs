@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Node","A node with an associated weight."],["Ring","A hashing ring implemented using the Cache Array Routing Protocol."]]});

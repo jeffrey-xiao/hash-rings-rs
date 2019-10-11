@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Ring","A hashing ring implemented using maglev hashing."]]});
