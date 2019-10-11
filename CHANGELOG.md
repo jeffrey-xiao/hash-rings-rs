@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0 - 2019-10-10
+
+### Changed
+
+- Remove unnecessary `mut` on methods.
+- Change `Client::insert_point` to return node associated with inserted point.
+- Add `with_hasher` to specify a custom hash function for nodes and points.
+
 ## 1.0.0 - 2018-10-06
 
 ### Changed
